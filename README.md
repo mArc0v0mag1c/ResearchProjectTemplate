@@ -94,6 +94,18 @@ git clone https://github.com/YOUR_USERNAME/repo-name.git
 This creates a `_myworkspace/` subfolder inside the repo with the full template structure, keeping the original code untouched. See [FORK-WORKFLOW.md](FORK-WORKFLOW.md) for the complete guide.
 
 
+### GitHub CLI Setup (Optional)
+
+If `git push` fails with authentication errors, install the [GitHub CLI](https://cli.github.com/) to configure credentials:
+
+```bash
+brew install gh          # Install
+gh auth login            # Authenticate (opens browser)
+gh auth setup-git        # Configure git to use gh credentials
+```
+
+One-time setup per machine. After this, `git push` works with HTTPS remotes.
+
 ## Git
 
 We use Git for version control and GitHub for collaboration. Git helps us track changes, work simultaneously without conflicts, and maintain a complete history of our research progress. Tons of tutorials on Git can be easily found online, so here we briefly explain two key concepts, commit and pull request, and focus more on best practices in academic research. 

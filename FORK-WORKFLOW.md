@@ -87,6 +87,24 @@ git merge upstream/main
 
 Your `_myworkspace/` files won't conflict with upstream changes since they're in a separate directory.
 
+## GitHub CLI Setup (Optional)
+
+If `git push` fails with authentication errors, install the GitHub CLI to configure credentials:
+
+```bash
+# 1. Install
+brew install gh
+
+# 2. Authenticate (opens browser for OAuth)
+gh auth login
+# Choose: GitHub.com → HTTPS → Login with a web browser
+
+# 3. Configure git to use gh credentials
+gh auth setup-git
+```
+
+After this, `git push` will work with HTTPS remotes. This is a one-time setup per machine.
+
 ## Collaborator Setup
 
 1. Share `repo-name-Share/` via Dropbox
