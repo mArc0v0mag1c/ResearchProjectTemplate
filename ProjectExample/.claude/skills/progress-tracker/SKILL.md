@@ -84,7 +84,7 @@ commit:
    - Update plan history entry: status to "Completed", add one-line summary
    - Update **Last Updated** date
 
-3. **Check branch** — ensure you are NOT on `main`. All commits go to a working branch (e.g., `test`). If on `main`, switch first: `git checkout -b test` or `git checkout test`.
+3. **Check branch** — ensure you are NOT on `main`. A `test` branch was auto-created during setup. If on `main`, switch: `git checkout test`.
 
 4. Stage and commit with this format:
 

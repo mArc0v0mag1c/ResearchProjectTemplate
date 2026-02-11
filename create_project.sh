@@ -536,10 +536,30 @@ fi
 if [ "$MODE" = "fresh" ]; then
     echo "Initializing git repository..."
     git init
+    echo "Creating test branch..."
+    git checkout -b test
 fi
 
 # ============================================================
-# Step 13: Run setup
+# Step 13: Create test branch (all modes)
+# ============================================================
+
+if [ "$MODE" = "fork" ]; then
+    cd "$FORK_REPO_PATH"
+    # Only create test branch if it doesn't already exist
+    if ! git rev-parse --verify test >/dev/null 2>&1; then
+        echo "Creating test branch..."
+        git checkout -b test
+    else
+        echo "test branch already exists, switching to it..."
+        git checkout test
+    fi
+    cd "$WORKSPACE_NAME"
+fi
+# Fresh mode: test branch was already created in Step 12
+
+# ============================================================
+# Step 14: Run setup
 # ============================================================
 
 echo ""
@@ -575,6 +595,8 @@ if [ "$MODE" = "fork" ]; then
     echo "        ├── Data/ -> -Share          - Symlink"
     echo "        └── Output/ -> -Share        - Symlink"
     echo ""
+    echo "Branch: test (auto-created — all work happens here, PR to main when ready)"
+    echo ""
     echo "Next steps:"
     echo "1. Review and commit: cd $PROJECT_NAME && git add . && git commit -m 'Add research workspace'"
     echo "2. Fill in API keys: edit $PROJECT_SHARE_NAME/Notes/.env"
@@ -602,6 +624,8 @@ else
     echo "    ├── pyproject.toml         - Python environment"
     echo "    ├── setup_mac.sh           - Setup script"
     echo "    └── README.md              - Setup instructions"
+    echo ""
+    echo "Branch: test (auto-created — all work happens here, PR to main when ready)"
     echo ""
     echo "Next steps for collaboration:"
     echo "1. Share $PROJECT_SHARE_NAME/ folder with coauthors via Dropbox"

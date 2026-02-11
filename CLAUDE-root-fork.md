@@ -20,6 +20,6 @@ This is a **forked repository** with a research workspace overlay:
 
 - Always read `WORKSPACE_PLACEHOLDER/PROGRESS.md` at session start
 - When asked "where are we?", refer to PROGRESS.md
-- **Never commit to `main`** — all work on a working branch (e.g., `test`). PR to `main` when permanent.
+- **Never commit to `main`** — a `test` branch is auto-created during setup. All work goes there. PR to `main` when permanent.
 - After completing a plan, update PROGRESS.md and commit (see progress-tracker skill)
 - Follow coding style in `WORKSPACE_PLACEHOLDER/CLAUDE.md`

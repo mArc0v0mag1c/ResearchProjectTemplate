@@ -80,10 +80,10 @@ Whenever calling Python-related programs, use `uv` unless it is infeasible.
 
 ## Git Branching
 
-- **Never commit directly to `main`**. All work happens on a working branch (e.g., `test`, `feature/xyz`).
-- `main` stays clean — it represents the last stable/accepted state and tracks upstream for this forked repo.
+- A `test` branch is **auto-created** during project setup. All work happens on `test` (or other feature branches).
+- **Never commit directly to `main`**. `main` stays clean — it represents the last stable/accepted state and tracks upstream for this forked repo.
 - When changes are ready to be permanent, create a **pull request** from the working branch to `main`.
-- Before committing, check you're on the right branch (`git branch`). If on `main`, create/switch to a working branch first.
+- Before committing, check you're on the right branch (`git branch`). If on `main`, switch to `test` first.
 
 ## Progress Tracking
 

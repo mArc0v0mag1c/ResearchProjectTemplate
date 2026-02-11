@@ -10,13 +10,13 @@ Use this when you want to fork an existing GitHub repo and add the research temp
 # 2. Clone your fork
 git clone https://github.com/YOUR_USERNAME/repo-name.git
 
-# 3. Overlay the template
+# 3. Overlay the template (auto-creates test branch)
 /path/to/ResearchProjectTemplate/create_project.sh --fork ./repo-name
 
 # 4. Fill in API keys
 nano repo-name-Share/Notes/.env
 
-# 5. Commit the overlay
+# 5. Commit the overlay (already on test branch)
 cd repo-name && git add . && git commit -m "Add research workspace"
 ```
 
@@ -66,6 +66,7 @@ repo-name/                           (your forked repo, original files untouched
 |--------|----------------------------------------|-------------------------------------------|
 | Starting point | Creates new directory | Uses existing cloned repo |
 | Git | Initializes new repo | Uses existing `.git/` |
+| Branch | Auto-creates `test` branch | Auto-creates/switches to `test` branch |
 | Template files | At project root | Inside `_myworkspace/` subfolder |
 | Original code | N/A | Untouched at repo root |
 | .gitignore | Created from template | Appended to existing |
