@@ -10,7 +10,7 @@ For design principles and best practices, see the [template documentation](https
 Projects use a two-folder structure:
 
 - `ProjectExample/` - Git repository containing code, final figures/tables, and LaTeX documents
-- `ProjectExample-Share/` - Dropbox-synced folder with data, notes, and intermediate outputs
+- `ProjectExample-Share/` - Cloud-synced folder (Dropbox, Google Drive, etc.) with data, notes, and intermediate outputs
 
 Folders from `ProjectExample-Share/` are symlinked into `ProjectExample/`, so you work in one place with access to everything.
 
@@ -25,7 +25,7 @@ Folders from `ProjectExample-Share/` are symlinked into `ProjectExample/`, so yo
 - `Paper/` - The LaTeX folder containing the draft
 - `Slides/` - The LaTeX folder containing slides
 
-#### In the Dropbox (`ProjectExample-Share`)
+#### In the Cloud Storage (`ProjectExample-Share`)
 - `Notes/` - Research notes and documentation
 - `Data/` - Raw and processed datasets. Typically read-only. 
 - `Output/` - Generated results and intermediate files

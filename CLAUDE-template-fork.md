@@ -17,7 +17,7 @@ You are working in the `ProjectExample/WORKSPACE_PLACEHOLDER/` folder, which is 
 
 The parent folder `ProjectExample/` contains the original forked repository codebase. Your research workspace is separate from the original code.
 
-You can access all folders normally - the symlinks are transparent. Files in symlinked folders are NOT tracked by Git but are synced via Dropbox.
+You can access all folders normally - the symlinks are transparent. Files in symlinked folders are NOT tracked by Git but are synced via cloud storage (e.g., Dropbox, Google Drive).
 
 ## Project Structure
 
@@ -32,7 +32,7 @@ This project follows a two-folder structure designed for academic research on to
 - `WORKSPACE_PLACEHOLDER/Slides/` - LaTeX presentations
 - `WORKSPACE_PLACEHOLDER/Data`, `WORKSPACE_PLACEHOLDER/Notes`, `WORKSPACE_PLACEHOLDER/Output` - Symlinks to ProjectExample-Share/
 
-### Dropbox Folder (ProjectExample-Share/)
+### Cloud Storage Folder (ProjectExample-Share/)
 - `Data/` - Raw and processed datasets (read-only, not version-tracked)
 - `Notes/` - Research notes and documentation
 - `Output/` - Intermediate results organized by task matching Code/ structure

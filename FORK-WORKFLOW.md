@@ -23,7 +23,7 @@ cd repo-name && git add . && git commit -m "Add research workspace"
 ## What Gets Created
 
 ```
-repo-name-Share/                     (new, for Dropbox)
+repo-name-Share/                     (new, for cloud storage)
 ├── Notes/.env                       API keys template
 ├── Data/                            Raw datasets
 └── Output/                          Intermediate results
@@ -107,7 +107,7 @@ After this, `git push` will work with HTTPS remotes. This is a one-time setup pe
 
 ## Collaborator Setup
 
-1. Share `repo-name-Share/` via Dropbox
+1. Share `repo-name-Share/` via cloud storage (Dropbox, Google Drive, etc.)
 2. Push repo to GitHub
 3. Collaborators clone and run:
    ```bash

@@ -3,7 +3,7 @@
 A project setup and workflow designed for academic research collaboration, centered around Git and optimized for AI assistance.
 
 **Key Features:**
-- Git repo + Dropbox share, symlinked into one folder
+- Git repo + cloud share (Dropbox, Google Drive, etc.), symlinked into one folder
 - Git-centric: A **must** to use AI, because AI messes up things
 - Compatible with traditional workflows and no-Git coauthors
 - Fine-tuned skills, MCPs, and agents useful for academic research
@@ -40,13 +40,13 @@ See `ProjectExample/` for structure reference and [Setup](#automated-setup) for 
 Projects use a two-folder structure:
 
 - `MyProject/` - Git repository containing code, final figures/tables, and LaTeX documents
-- `MyProject-Share/` - Dropbox-synced folder with data, notes, and intermediate outputs
+- `MyProject-Share/` - Cloud-synced folder (Dropbox, Google Drive, etc.) with data, notes, and intermediate outputs
 
 Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in one place with access to everything.
 
-**Why two folders?** Solves the Git vs. Dropbox dilemma: Dropbox lacks proper version control and handles conflicts poorly, while Git struggles with large files. By linking folders together, you get Git's version control + Dropbox's file sharing while working seamlessly in one place.
+**Why two folders?** Solves the Git vs. cloud storage dilemma: cloud storage (Dropbox, Google Drive) lacks proper version control and handles conflicts poorly, while Git struggles with large files. By linking folders together, you get Git's version control + cloud file sharing while working seamlessly in one place.
 
-**Working with non-Git users**: you can also clone the repo into the `MyProject-Share` folder, so they can work just as usual. Because it is shared via Dropbox, you can access all the code and handle Git on their behalf. 
+**Working with non-Git users**: you can also clone the repo into the `MyProject-Share` folder, so they can work just as usual. Because it is shared via cloud storage, you can access all the code and handle Git on their behalf. 
 
 
 ### Core Structure
@@ -59,7 +59,7 @@ Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in 
 - `Paper/` - The LaTeX folder containing the draft
 - `Slides/` - The LaTeX folder containing slides
 
-#### In the Dropbox (`MyProject-Share`)
+#### In the Cloud Storage (`MyProject-Share`)
 - `Notes/` - Research notes and documentation
 - `Data/` - Raw and processed datasets. Typically read-only. 
 - `Output/` - Generated results and intermediate files
@@ -77,7 +77,7 @@ Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in 
    ```
 
 2. **Share with coauthors**:
-   - Share `YourProjectName-Share/` via Dropbox
+   - Share `YourProjectName-Share/` via cloud storage (Dropbox, Google Drive, etc.)
    - Push to GitHub: `cd YourProjectName && git remote add origin <url> && git push -u origin main`
    - Coauthors: clone repo and run `./setup_mac.sh`
 
@@ -93,6 +93,25 @@ git clone https://github.com/YOUR_USERNAME/repo-name.git
 
 This creates a `_myworkspace/` subfolder inside the repo with the full template structure, keeping the original code untouched. See [FORK-WORKFLOW.md](FORK-WORKFLOW.md) for the complete guide.
 
+
+### Cloud Storage Integration (Optional)
+
+To place the `-Share/` folder directly in Google Drive, Dropbox, or any cloud-synced location:
+
+```bash
+# Fresh project with cloud storage
+./create_project.sh --drive ~/Library/CloudStorage/GoogleDrive-user@gmail.com/My\ Drive/Research MyProject
+
+# Fork overlay with cloud storage
+./create_project.sh --fork ./repo-name --drive ~/Library/CloudStorage/GoogleDrive-user@gmail.com/My\ Drive/Research
+```
+
+Common cloud storage mount points on macOS:
+- **Google Drive**: `~/Library/CloudStorage/GoogleDrive-<email>/My Drive/<folder>`
+- **Dropbox**: `~/Library/CloudStorage/Dropbox/<folder>`
+- **OneDrive**: `~/Library/CloudStorage/OneDrive-Personal/<folder>`
+
+Without `--drive`, the `-Share/` folder is created next to the repo (default). **Tip**: If using Google Drive, set it to **Mirror mode** (Settings → Mirror files) for instant read speed.
 
 ### GitHub CLI Setup (Optional)
 
@@ -279,6 +298,6 @@ The project uses [`uv`](https://docs.astral.sh/uv/) for Python environment manag
 
 The setup script configures `uv` to place virtual environments in `~/.venvs/MyProject` rather than within the project folder. This keeps the project directory clean and ensures consistent environment paths across different machines.
 
-**Technical note**: The rationale for putting the `.venvs` folder outside of the project folder is that project folders are often synced via Dropbox across different machines. `uv` uses hard-link/clone for the Python environment, which will be broken by Dropbox sync, resulting in multiple copies of the same package across different projects (highly space inefficient). Moving it out of Dropbox solves this issue.
+**Technical note**: The rationale for putting the `.venvs` folder outside of the project folder is that project folders are often synced via cloud storage (Dropbox, Google Drive) across different machines. `uv` uses hard-link/clone for the Python environment, which will be broken by cloud sync, resulting in multiple copies of the same package across different projects (highly space inefficient). Moving it out of the synced folder solves this issue.
 
 The setup script creates a `.venv` symlink in your project pointing to `~/.venvs/MyProject`. VS Code and other tools automatically detect this symlink and use the correct environment—no manual configuration needed. 

@@ -7,6 +7,8 @@
 #   ./create_project.sh <project-name-or-path>                        # Fresh project
 #   ./create_project.sh --fork <path-to-repo>                         # Overlay onto existing repo
 #   ./create_project.sh --fork <path-to-repo> --workspace _research   # Custom workspace name
+#   ./create_project.sh --drive <cloud-path> <project-name>          # -Share in cloud storage
+#   ./create_project.sh --fork <path-to-repo> --drive <cloud-path>   # Fork + cloud storage
 
 set -e  # Exit on any error
 
@@ -18,6 +20,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # ============================================================
 MODE="fresh"
 WORKSPACE_NAME="_myworkspace"
+DRIVE_PATH=""
 POSITIONAL_ARG=""
 
 while [[ $# -gt 0 ]]; do
@@ -30,15 +33,21 @@ while [[ $# -gt 0 ]]; do
             WORKSPACE_NAME="$2"
             shift 2
             ;;
+        --drive)
+            DRIVE_PATH="$2"
+            shift 2
+            ;;
         -h|--help)
             echo "Usage:"
             echo "  $0 <project-name-or-path>                        # Fresh project"
             echo "  $0 --fork <path-to-repo>                         # Overlay onto existing repo"
             echo "  $0 --fork <path-to-repo> --workspace <name>      # Custom workspace name (default: _myworkspace)"
+            echo "  $0 --drive <cloud-path> <project-name>             # Place -Share in cloud storage"
             echo ""
             echo "Options:"
             echo "  --fork        Overlay template onto an existing Git repository"
             echo "  --workspace   Name of workspace subfolder (fork mode only, default: _myworkspace)"
+            echo "  --drive       Cloud storage path for -Share folder (e.g., Google Drive, Dropbox)"
             echo "  -h, --help    Show this help message"
             exit 0
             ;;
@@ -78,7 +87,11 @@ if [ "$MODE" = "fork" ]; then
     echo "Fork overlay mode"
     echo "Repository: $FORK_REPO_PATH"
     echo "Workspace:  $WORKSPACE_NAME"
-    echo "Share folder: $PARENT_DIR/$PROJECT_SHARE_NAME"
+    if [ -n "$DRIVE_PATH" ]; then
+        echo "Share folder: $DRIVE_PATH/$PROJECT_SHARE_NAME (cloud storage)"
+    else
+        echo "Share folder: $PARENT_DIR/$PROJECT_SHARE_NAME"
+    fi
     echo ""
 
 else
@@ -102,14 +115,34 @@ else
 fi
 
 # ============================================================
+# Resolve -Share parent directory
+# ============================================================
+
+if [ -n "$DRIVE_PATH" ]; then
+    # Expand ~ if present
+    DRIVE_PATH="${DRIVE_PATH/#\~/$HOME}"
+
+    if [ ! -d "$DRIVE_PATH" ]; then
+        echo "Error: Drive path '$DRIVE_PATH' does not exist."
+        echo "Please create it first, or check that your cloud storage is mounted."
+        exit 1
+    fi
+
+    SHARE_PARENT_DIR="$DRIVE_PATH"
+    echo "Cloud storage: $DRIVE_PATH"
+elif [ "$MODE" = "fork" ]; then
+    SHARE_PARENT_DIR="$PARENT_DIR"
+else
+    SHARE_PARENT_DIR="$(pwd)"
+fi
+
+SHARE_ABS_PATH="$(cd "$SHARE_PARENT_DIR" && pwd)/$PROJECT_SHARE_NAME"
+
+# ============================================================
 # Step 1: Create shared folders (-Share/)
 # ============================================================
 
-if [ "$MODE" = "fork" ]; then
-    cd "$PARENT_DIR"
-else
-    : # Already in the right directory
-fi
+cd "$SHARE_PARENT_DIR"
 
 mkdir -p "$PROJECT_SHARE_NAME"
 cd "$PROJECT_SHARE_NAME"
@@ -142,14 +175,22 @@ if [ "$MODE" = "fork" ]; then
     mkdir -p "$WORK_DIR"
     cd "$WORK_DIR"
     echo "Creating workspace in $WORKSPACE_NAME/..."
-    SHARE_RELATIVE="../../$PROJECT_SHARE_NAME"
+    if [ -n "$DRIVE_PATH" ]; then
+        SHARE_RELATIVE="$SHARE_ABS_PATH"
+    else
+        SHARE_RELATIVE="../../$PROJECT_SHARE_NAME"
+    fi
 else
     cd ..
     mkdir -p "$PROJECT_NAME"
     cd "$PROJECT_NAME"
     WORK_DIR="."
     echo "Creating code project directories..."
-    SHARE_RELATIVE="../$PROJECT_SHARE_NAME"
+    if [ -n "$DRIVE_PATH" ]; then
+        SHARE_RELATIVE="$SHARE_ABS_PATH"
+    else
+        SHARE_RELATIVE="../$PROJECT_SHARE_NAME"
+    fi
 fi
 
 mkdir -p Code Figures Tables Paper Slides Plans
@@ -217,6 +258,10 @@ if [ -f "$SCRIPT_DIR/ProjectExample/setup_mac.sh" ]; then
         # Remove git init block (repo already has .git/)
         sed -i '' '/# Initialize git repository/,/echo "Setup complete!"/{ /# Initialize git/,/^fi$/d; }' setup_mac.sh
     fi
+    # Override SOURCE_DIR with absolute cloud storage path if --drive was used
+    if [ -n "$DRIVE_PATH" ]; then
+        sed -i '' "s|SOURCE_DIR=.*|SOURCE_DIR=\"${SHARE_ABS_PATH}\"|" setup_mac.sh
+    fi
 else
     echo "Warning: ProjectExample/setup_mac.sh not found, creating basic setup_mac.sh"
     cat > setup_mac.sh << 'SETUP_EOF'
@@ -262,6 +307,11 @@ if [ -f "$CLAUDE_TEMPLATE" ]; then
     sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" CLAUDE.md
     if [ "$MODE" = "fork" ]; then
         sed -i '' "s/WORKSPACE_PLACEHOLDER/$WORKSPACE_NAME/g" CLAUDE.md
+    fi
+    # Replace Dropbox references with cloud storage when --drive is used
+    if [ -n "$DRIVE_PATH" ]; then
+        sed -i '' 's/synced via cloud storage (e.g., Dropbox, Google Drive)/synced via cloud storage (Google Drive)/g' CLAUDE.md
+        sed -i '' 's/Cloud Storage Folder/Google Drive Folder/g' CLAUDE.md
     fi
 else
     echo "Warning: CLAUDE template not found, skipping CLAUDE.md creation"
@@ -600,7 +650,11 @@ if [ "$MODE" = "fork" ]; then
     echo "Next steps:"
     echo "1. Review and commit: cd $PROJECT_NAME && git add . && git commit -m 'Add research workspace'"
     echo "2. Fill in API keys: edit $PROJECT_SHARE_NAME/Notes/.env"
-    echo "3. Share $PROJECT_SHARE_NAME/ via Dropbox"
+    if [ -n "$DRIVE_PATH" ]; then
+        echo "3. Share folder is in cloud storage at: $SHARE_ABS_PATH"
+    else
+        echo "3. Share $PROJECT_SHARE_NAME/ via cloud storage (Dropbox, Google Drive, etc.)"
+    fi
 else
     echo "Project template created and set up successfully!"
     echo ""
@@ -628,7 +682,11 @@ else
     echo "Branch: test (auto-created — all work happens here, PR to main when ready)"
     echo ""
     echo "Next steps for collaboration:"
-    echo "1. Share $PROJECT_SHARE_NAME/ folder with coauthors via Dropbox"
+    if [ -n "$DRIVE_PATH" ]; then
+        echo "1. Share folder is in cloud storage at: $SHARE_ABS_PATH"
+    else
+        echo "1. Share $PROJECT_SHARE_NAME/ folder with coauthors via cloud storage (Dropbox, Google Drive, etc.)"
+    fi
     echo "2. Push $PROJECT_NAME/ repository to GitHub and share with coauthors"
     echo "3. Coauthors should clone the repository and run ./setup_mac.sh to set up their environment"
     echo ""
