@@ -405,7 +405,27 @@ else
 fi
 
 # ============================================================
-# Step 10: Symlinks to shared folders
+# Step 10: PR template (.github/)
+# ============================================================
+
+echo "Creating PR template..."
+if [ -f "$SCRIPT_DIR/ProjectExample/.github/PULL_REQUEST_TEMPLATE.md" ]; then
+    if [ "$MODE" = "fork" ]; then
+        GITHUB_DEST="$FORK_REPO_PATH/.github"
+    else
+        GITHUB_DEST=".github"
+    fi
+    mkdir -p "$GITHUB_DEST"
+    if [ ! -f "$GITHUB_DEST/PULL_REQUEST_TEMPLATE.md" ]; then
+        cp "$SCRIPT_DIR/ProjectExample/.github/PULL_REQUEST_TEMPLATE.md" "$GITHUB_DEST/PULL_REQUEST_TEMPLATE.md"
+        echo "Created .github/PULL_REQUEST_TEMPLATE.md"
+    else
+        echo ".github/PULL_REQUEST_TEMPLATE.md already exists, skipping"
+    fi
+fi
+
+# ============================================================
+# Step 11: Symlinks to shared folders
 # ============================================================
 
 echo "Creating symlinks..."
@@ -426,7 +446,7 @@ else
 fi
 
 # ============================================================
-# Step 11: .gitignore
+# Step 12: .gitignore
 # ============================================================
 
 if [ "$MODE" = "fork" ]; then
@@ -580,7 +600,7 @@ EOF
 fi
 
 # ============================================================
-# Step 12: Git init (fresh mode only)
+# Step 13: Git init (fresh mode only)
 # ============================================================
 
 if [ "$MODE" = "fresh" ]; then
@@ -591,7 +611,7 @@ if [ "$MODE" = "fresh" ]; then
 fi
 
 # ============================================================
-# Step 13: Create test branch (all modes)
+# Step 14: Create test branch (all modes)
 # ============================================================
 
 if [ "$MODE" = "fork" ]; then
@@ -606,10 +626,10 @@ if [ "$MODE" = "fork" ]; then
     fi
     cd "$WORKSPACE_NAME"
 fi
-# Fresh mode: test branch was already created in Step 12
+# Fresh mode: test branch was already created in Step 13
 
 # ============================================================
-# Step 14: Run setup
+# Step 15: Run setup
 # ============================================================
 
 echo ""
