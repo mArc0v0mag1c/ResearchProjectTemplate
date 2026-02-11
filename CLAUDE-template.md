@@ -1,6 +1,14 @@
 
 # Academic Research Project Instructions for Claude
 
+## Reading Order (Priority)
+
+1. **`PROGRESS.md`** — Read FIRST. Current project status, active plan, history.
+2. **This file (`CLAUDE.md`)** — Project structure, coding style, conventions.
+3. **`Plans/`** — If PROGRESS.md shows an active plan, read the corresponding plan log.
+4. **`.claude/skills/`** — Available skills (pdf, progress-tracker, work-summary, zotero-paper-reader).
+5. **`.claude/agents/`** — Specialized agents (code-reviewer, report-checker, results-summarizer).
+
 ## Working Directory Context
 
 You are working in the `ProjectExample/` folder, which is a Git repository. This folder contains:
@@ -66,3 +74,37 @@ Within each Output subfolder, optionally organize by script name:
 - Add dependencies with `uv add package`
 
 Whenever calling Python-related programs, use `uv` unless it is infeasible.
+
+## Git Branching
+
+- **Never commit directly to `main`**. All work happens on a working branch (e.g., `test`, `feature/xyz`).
+- `main` stays clean — it represents the last stable/accepted state (and tracks upstream for forked repos).
+- When changes are ready to be permanent, create a **pull request** from the working branch to `main`.
+- Before committing, check you're on the right branch (`git branch`). If on `main`, create/switch to a working branch first.
+
+## Progress Tracking
+
+This project tracks progress across sessions using two files:
+
+### Files
+- `PROGRESS.md` — Compact status tracker. **Read this first** when starting a new session or when asked for status.
+- `Plans/` — Detailed plan logs, one file per plan.
+
+### Workflow
+1. **Session start**: Read `PROGRESS.md` for context on current phase and recent work.
+2. **New plan**: Create `Plans/YYYY-MM-DD-description.md`, update `PROGRESS.md` (set Active Plan).
+3. **During work**: Update plan log steps as completed.
+4. **Plan done** (user says "wrap up" / "commit"):
+   - Update plan log Outcome section
+   - Update `PROGRESS.md` (status → Completed, clear Active Plan)
+   - Commit with detailed message:
+     ```
+     [Title]: one-line summary
+
+     Prior state: ...
+     Motivation: ...
+     Steps: 1. ... 2. ...
+     Key files: ...
+     See Plans/YYYY-MM-DD-desc.md for details.
+     ```
+5. **"Where are we?"**: Read and report from `PROGRESS.md`.

@@ -67,6 +67,8 @@ Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in 
 
 ## Automated Setup
 
+### Fresh Project (New Research)
+
 1. **Clone and create project**:
    ```bash
    git clone https://github.com/FuZhiyu/ResearchProjectTemplate.git
@@ -78,6 +80,18 @@ Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in 
    - Share `YourProjectName-Share/` via Dropbox
    - Push to GitHub: `cd YourProjectName && git remote add origin <url> && git push -u origin main`
    - Coauthors: clone repo and run `./setup_mac.sh`
+
+### Fork Overlay (Existing Repository)
+
+For setting up the template on a forked or cloned existing repository:
+
+```bash
+# Fork the repo on GitHub, then:
+git clone https://github.com/YOUR_USERNAME/repo-name.git
+./create_project.sh --fork ./repo-name
+```
+
+This creates a `_myworkspace/` subfolder inside the repo with the full template structure, keeping the original code untouched. See [FORK-WORKFLOW.md](FORK-WORKFLOW.md) for the complete guide.
 
 
 ## Git
@@ -213,6 +227,7 @@ The template includes specialized Claude skills in `.claude/skills/`:
 - **`pdf`** - PDF processing toolkit for extracting text/tables, creating PDFs, merging/splitting documents, and handling fillable forms
 - **`mistral-pdf-to-markdown`** - Convert PDFs (including scanned documents) to Markdown using Mistral OCR API with image extraction
 - **`zotero-paper-reader`** - Read and analyze academic papers directly from your Zotero library, with automatic PDF-to-Markdown conversion
+- **`progress-tracker`** - Track project progress across sessions via `PROGRESS.md` and plan logs in `Plans/`
 - **`work-summary`** - Create factual working journal entries in `Notes/WorkingJournal/` after completing analysis work
 
 **Usage**: Skills are automatically available in Claude Code. Example: "Use the zotero-paper-reader skill to read the paper about liquidity from my library"

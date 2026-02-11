@@ -11,23 +11,26 @@
 
 ## Working Directory Context
 
-You are working in the `ProjectExample/` folder, which is a Git repository. This folder contains:
-- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`
-- Symlinked folders: `Data`, `Notes`, `Output` (these link to `../ProjectExample-Share/` which is outside the Git repo)
+You are working in the `ProjectExample/WORKSPACE_PLACEHOLDER/` folder, which is a research workspace inside a forked Git repository. This folder contains:
+- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`, `Plans/`
+- Symlinked folders: `Data`, `Notes`, `Output` (these link to `../../ProjectExample-Share/` which is outside the Git repo)
+
+The parent folder `ProjectExample/` contains the original forked repository codebase. Your research workspace is separate from the original code.
 
 You can access all folders normally - the symlinks are transparent. Files in symlinked folders are NOT tracked by Git but are synced via Dropbox.
 
 ## Project Structure
 
-This project follows a two-folder structure designed for academic research collaboration:
+This project follows a two-folder structure designed for academic research on top of a forked repository:
 
 ### Git Repository (ProjectExample/)
-- `Code/` - All analysis scripts organized by task (e.g., DataCleaning/)
-- `Figures/` - Final presentable charts and visualizations (version-tracked)
-- `Tables/` - Final presentable results and summary statistics (version-tracked)
-- `Paper/` - LaTeX documents for academic papers
-- `Slides/` - LaTeX presentations
-- `Data`, `Notes`, `Output` - Symlinks to corresponding folders in ProjectExample-Share/
+- Original forked codebase at the repo root
+- `WORKSPACE_PLACEHOLDER/Code/` - All analysis scripts organized by task (e.g., DataCleaning/)
+- `WORKSPACE_PLACEHOLDER/Figures/` - Final presentable charts and visualizations (version-tracked)
+- `WORKSPACE_PLACEHOLDER/Tables/` - Final presentable results and summary statistics (version-tracked)
+- `WORKSPACE_PLACEHOLDER/Paper/` - LaTeX documents for academic papers
+- `WORKSPACE_PLACEHOLDER/Slides/` - LaTeX presentations
+- `WORKSPACE_PLACEHOLDER/Data`, `WORKSPACE_PLACEHOLDER/Notes`, `WORKSPACE_PLACEHOLDER/Output` - Symlinks to ProjectExample-Share/
 
 ### Dropbox Folder (ProjectExample-Share/)
 - `Data/` - Raw and processed datasets (read-only, not version-tracked)
@@ -78,7 +81,7 @@ Whenever calling Python-related programs, use `uv` unless it is infeasible.
 ## Git Branching
 
 - **Never commit directly to `main`**. All work happens on a working branch (e.g., `test`, `feature/xyz`).
-- `main` stays clean — it represents the last stable/accepted state (and tracks upstream for forked repos).
+- `main` stays clean — it represents the last stable/accepted state and tracks upstream for this forked repo.
 - When changes are ready to be permanent, create a **pull request** from the working branch to `main`.
 - Before committing, check you're on the right branch (`git branch`). If on `main`, create/switch to a working branch first.
 
@@ -108,14 +111,3 @@ This project tracks progress across sessions using two files:
      See Plans/YYYY-MM-DD-desc.md for details.
      ```
 5. **"Where are we?"**: Read and report from `PROGRESS.md`.
-
-## For Codex Only
-
-### Skills available
-
-- `mistral-pdf-to-markdown`: Convert PDFs to Markdown with Mistral OCR, including image extraction (`.claude/skills/mistral-pdf-to-markdown`).
-- `pdf`: Comprehensive toolkit for programmatic PDF extraction, creation, merging, and form handling (`.claude/skills/pdf`).
-- `progress-tracker`: Track project progress across sessions via `PROGRESS.md` and `Plans/` (`.claude/skills/progress-tracker`).
-- `work-summary`: Generate factual working journal entries in `Notes/WorkingJournal/` once analysis is done (`.claude/skills/work-summary`).
-
-Use these skills whenever the user requests the corresponding workflow; refer to each `SKILL.md` for command details.

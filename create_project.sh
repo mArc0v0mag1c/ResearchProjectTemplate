@@ -1,78 +1,189 @@
 #!/bin/bash
 
 # Project template generator for academic research projects
-# Creates a new project with the same structure as this one
+# Creates a new project or overlays template onto an existing forked repo
+#
+# Usage:
+#   ./create_project.sh <project-name-or-path>                        # Fresh project
+#   ./create_project.sh --fork <path-to-repo>                         # Overlay onto existing repo
+#   ./create_project.sh --fork <path-to-repo> --workspace _research   # Custom workspace name
 
 set -e  # Exit on any error
 
 # Get the directory where create_project.sh is located (before changing directories)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Check if project name is provided
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <project-name-or-path>"
-    echo "Examples:"
-    echo "  $0 MyResearchProject      # Creates in current directory"
-    echo "  $0 ../MyResearchProject   # Creates in parent directory"
-    echo "  $0 /path/to/MyProject     # Creates at absolute path"
+# ============================================================
+# Argument parsing
+# ============================================================
+MODE="fresh"
+WORKSPACE_NAME="_myworkspace"
+POSITIONAL_ARG=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --fork)
+            MODE="fork"
+            shift
+            ;;
+        --workspace)
+            WORKSPACE_NAME="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage:"
+            echo "  $0 <project-name-or-path>                        # Fresh project"
+            echo "  $0 --fork <path-to-repo>                         # Overlay onto existing repo"
+            echo "  $0 --fork <path-to-repo> --workspace <name>      # Custom workspace name (default: _myworkspace)"
+            echo ""
+            echo "Options:"
+            echo "  --fork        Overlay template onto an existing Git repository"
+            echo "  --workspace   Name of workspace subfolder (fork mode only, default: _myworkspace)"
+            echo "  -h, --help    Show this help message"
+            exit 0
+            ;;
+        *)
+            POSITIONAL_ARG="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$POSITIONAL_ARG" ]; then
+    echo "Error: No project path provided."
+    echo "Run '$0 --help' for usage."
     exit 1
 fi
 
-PROJECT_PATH="$1"
+# ============================================================
+# Mode-specific setup
+# ============================================================
 
-# Extract directory and project name
-if [[ "$PROJECT_PATH" == */* ]]; then
-    # Path contains directory
-    PROJECT_DIR=$(dirname "$PROJECT_PATH")
-    PROJECT_NAME=$(basename "$PROJECT_PATH")
-    
-    # Create and change to the project directory
-    mkdir -p "$PROJECT_DIR"
-    cd "$PROJECT_DIR"
+if [ "$MODE" = "fork" ]; then
+    # Fork mode: overlay onto existing repo
+    FORK_REPO_PATH="$(cd "$POSITIONAL_ARG" 2>/dev/null && pwd)" || {
+        echo "Error: Directory '$POSITIONAL_ARG' does not exist"
+        exit 1
+    }
+
+    if [ ! -d "$FORK_REPO_PATH/.git" ]; then
+        echo "Error: '$FORK_REPO_PATH' is not a Git repository"
+        exit 1
+    fi
+
+    PROJECT_NAME="$(basename "$FORK_REPO_PATH")"
+    PROJECT_SHARE_NAME="${PROJECT_NAME}-Share"
+    PARENT_DIR="$(dirname "$FORK_REPO_PATH")"
+
+    echo "Fork overlay mode"
+    echo "Repository: $FORK_REPO_PATH"
+    echo "Workspace:  $WORKSPACE_NAME"
+    echo "Share folder: $PARENT_DIR/$PROJECT_SHARE_NAME"
+    echo ""
+
 else
-    # Just a name, use current directory
-    PROJECT_NAME="$PROJECT_PATH"
-    PROJECT_DIR="."
+    # Fresh mode: create new project (original behavior)
+    PROJECT_PATH="$POSITIONAL_ARG"
+
+    if [[ "$PROJECT_PATH" == */* ]]; then
+        PROJECT_DIR=$(dirname "$PROJECT_PATH")
+        PROJECT_NAME=$(basename "$PROJECT_PATH")
+        mkdir -p "$PROJECT_DIR"
+        cd "$PROJECT_DIR"
+    else
+        PROJECT_NAME="$PROJECT_PATH"
+        PROJECT_DIR="."
+    fi
+
+    PROJECT_SHARE_NAME="${PROJECT_NAME}-Share"
+
+    echo "Creating project template for: $PROJECT_NAME"
+    echo "Location: $(pwd)"
 fi
 
-PROJECT_SHARE_NAME="${PROJECT_NAME}-Share"
+# ============================================================
+# Step 1: Create shared folders (-Share/)
+# ============================================================
 
-echo "Creating project template for: $PROJECT_NAME"
-echo "Location: $(pwd)"
+if [ "$MODE" = "fork" ]; then
+    cd "$PARENT_DIR"
+else
+    : # Already in the right directory
+fi
 
-# Create shared folders directory
 mkdir -p "$PROJECT_SHARE_NAME"
 cd "$PROJECT_SHARE_NAME"
 
-# Create shared project structure
 echo "Creating shared directories..."
 mkdir -p Notes Data Output
 
 # Copy .env to Notes/
 if [ -f "$SCRIPT_DIR/ProjectExample/Notes/.env" ]; then
-    cp "$SCRIPT_DIR/ProjectExample/Notes/.env" Notes/.env
-    # Replace ProjectExample with actual project name
-    sed -i '' "s/ProjectExample/$PROJECT_NAME/g" Notes/.env
-    echo "Copied .env template to Notes/"
+    if [ ! -f Notes/.env ]; then
+        cp "$SCRIPT_DIR/ProjectExample/Notes/.env" Notes/.env
+        sed -i '' "s/ProjectExample/$PROJECT_NAME/g" Notes/.env
+        echo "Copied .env template to Notes/"
+    else
+        echo ".env already exists in Notes/, skipping"
+    fi
 else
     echo "Warning: ProjectExample/Notes/.env not found"
 fi
 
 echo "Created shared folder structure in $PROJECT_SHARE_NAME"
 
-# Create code repository
-cd ..
-mkdir -p "$PROJECT_NAME"
-cd "$PROJECT_NAME"
+# ============================================================
+# Step 2: Create workspace directories
+# ============================================================
 
-echo "Creating code project directories..."
-mkdir -p Code Figures Tables Paper Slides
+if [ "$MODE" = "fork" ]; then
+    cd "$FORK_REPO_PATH"
+    WORK_DIR="$WORKSPACE_NAME"
+    mkdir -p "$WORK_DIR"
+    cd "$WORK_DIR"
+    echo "Creating workspace in $WORKSPACE_NAME/..."
+    SHARE_RELATIVE="../../$PROJECT_SHARE_NAME"
+else
+    cd ..
+    mkdir -p "$PROJECT_NAME"
+    cd "$PROJECT_NAME"
+    WORK_DIR="."
+    echo "Creating code project directories..."
+    SHARE_RELATIVE="../$PROJECT_SHARE_NAME"
+fi
 
-# Create Python pyproject.toml from template
+mkdir -p Code Figures Tables Paper Slides Plans
+
+# ============================================================
+# Step 3: Progress tracking scaffold
+# ============================================================
+
+echo "Creating progress tracking files..."
+if [ ! -f PROGRESS.md ]; then
+    cat > PROGRESS.md << PROGRESS_EOF
+# Project Progress
+
+## Current Status
+**Phase**: Setup | **Active Plan**: None | **Last Updated**: $(date +%Y-%m-%d)
+
+## Plan History
+
+_No plans yet. Start your first plan by telling Claude what you want to work on._
+PROGRESS_EOF
+    echo "Created PROGRESS.md"
+fi
+
+if [ ! -f Plans/.gitkeep ]; then
+    touch Plans/.gitkeep
+fi
+
+# ============================================================
+# Step 4: pyproject.toml
+# ============================================================
+
 echo "Creating Python environment..."
 if [ -f "$SCRIPT_DIR/ProjectExample/pyproject.toml" ]; then
     cp "$SCRIPT_DIR/ProjectExample/pyproject.toml" pyproject.toml
-    # Replace ProjectExample with actual project names
     sed -i '' "s/projectexample/$(echo $PROJECT_NAME | tr '[:upper:]' '[:lower:]' | tr ' ' '-')/g" pyproject.toml
     sed -i '' "s/ProjectExample/$PROJECT_NAME/g" pyproject.toml
 else
@@ -88,32 +199,36 @@ dependencies = []
 EOF
 fi
 
-# Create setup script from template
+# ============================================================
+# Step 5: setup_mac.sh
+# ============================================================
+
 echo "Creating setup script..."
 if [ -f "$SCRIPT_DIR/ProjectExample/setup_mac.sh" ]; then
     cp "$SCRIPT_DIR/ProjectExample/setup_mac.sh" setup_mac.sh
-    # Replace ProjectExample with actual project names
     sed -i '' "s/ProjectExample/$PROJECT_NAME/g" setup_mac.sh
+    # Adjust paths for fork mode
+    if [ "$MODE" = "fork" ]; then
+        sed -i '' "s|\"../${PROJECT_NAME}-Share\"|\"../../${PROJECT_SHARE_NAME}\"|g" setup_mac.sh
+        sed -i '' "s|SOURCE_DIR=\"../${PROJECT_NAME}-Share\"|SOURCE_DIR=\"../../${PROJECT_SHARE_NAME}\"|g" setup_mac.sh
+        # Fix .venv symlink to use repo name, not workspace name
+        sed -i '' 's|ln -s "$HOME/.venvs/$(basename "$PWD")"|ln -s "$HOME/.venvs/'"$PROJECT_NAME"'"|g' setup_mac.sh
+        sed -i '' 's|echo "Created .venv -> $HOME/.venvs/$(basename "$PWD") symlink"|echo "Created .venv -> $HOME/.venvs/'"$PROJECT_NAME"' symlink"|g' setup_mac.sh
+        # Remove git init block (repo already has .git/)
+        sed -i '' '/# Initialize git repository/,/echo "Setup complete!"/{ /# Initialize git/,/^fi$/d; }' setup_mac.sh
+    fi
 else
     echo "Warning: ProjectExample/setup_mac.sh not found, creating basic setup_mac.sh"
-    cat > setup_mac.sh << 'EOF'
+    cat > setup_mac.sh << 'SETUP_EOF'
 #!/bin/bash
-
-# Setup script for Mac users
-# This script installs uv, syncs the Python project, and creates softlinks
-
-set -e  # Exit on any error
-
+set -e
 echo "Setting up PROJECT_NAME_PLACEHOLDER project..."
 
-# Check if Homebrew is installed
 if ! command -v brew &> /dev/null; then
-    echo "Error: Homebrew is not installed. Please install Homebrew first:"
-    echo "https://brew.sh"
+    echo "Error: Homebrew is not installed. Please install Homebrew first: https://brew.sh"
     exit 1
 fi
 
-# Install uv via Homebrew if not already installed
 if ! command -v uv &> /dev/null; then
     echo "Installing uv..."
     brew install uv
@@ -121,163 +236,212 @@ else
     echo "uv is already installed, skipping installation"
 fi
 
-# Set up UV environment variable for consistent venv location
-export UV_PROJECT_ENVIRONMENT="$HOME/.venvs/$(basename "$PWD")"
-
-# Sync the uv Python project
-echo "Syncing uv Python project..."
+export UV_PROJECT_ENVIRONMENT="$HOME/.venvs/PROJECT_NAME_PLACEHOLDER"
 uv sync
 
-# Create softlinks from ../PROJECT_NAME_PLACEHOLDER-Share/ to current directory
-echo "Creating softlinks..."
-
-# Define source and target directories
-SOURCE_DIR="../PROJECT_NAME_PLACEHOLDER-Share"
-
-# Check if source directory exists
-if [ ! -d "$SOURCE_DIR" ]; then
-    echo "Warning: Source directory $SOURCE_DIR does not exist"
-    echo "Skipping softlink creation"
-else
-    # Create softlinks for all folders in the shared directory
-    for folder in "$SOURCE_DIR"/*; do
-        if [ -d "$folder" ]; then
-            folder_name=$(basename "$folder")
-            if [ -L "./$folder_name" ]; then
-                echo "Softlink ./$folder_name already exists, skipping"
-            else
-                ln -s "$SOURCE_DIR/$folder_name" "./$folder_name"
-                echo "Created softlink: ./$folder_name -> $SOURCE_DIR/$folder_name"
-            fi
-        fi
-    done
-fi
-
-# Create VS Code settings directory and configuration
-echo "Setting up VS Code configuration..."
-mkdir -p .vscode
-
-# Create VS Code settings.json with proper Python interpreter path
-cat > .vscode/settings.json << VSCODE_EOF
-{
-    "python.defaultInterpreterPath": "\${env:HOME}/.venvs/\${workspaceFolderBasename}/bin/python",
-    "terminal.integrated.env.osx": {
-        "UV_PROJECT_ENVIRONMENT": "\${env:HOME}/.venvs/\${workspaceFolderBasename}"
-    },
-    "python.analysis.extraPaths": [
-        "\${env:HOME}/.venvs/\${workspaceFolderBasename}/lib/python*/site-packages"
-    ]
-}
-VSCODE_EOF
-
-echo "VS Code settings configured at .vscode/settings.json"
-
-# Initialize git repository if not already initialized
-if [ ! -d .git ]; then
-    echo "Initializing git repository..."
-    git init
-
-    # Add all files and make initial commit
-    git add .
-    git commit -m "Initial commit: $PROJECT_NAME research project setup"
-    echo "Created initial git commit"
-else
-    echo "Git repository already initialized"
-fi
-
 echo "Setup complete!"
-EOF
-    # Replace placeholder with actual project name
+SETUP_EOF
     sed -i '' "s/PROJECT_NAME_PLACEHOLDER/$PROJECT_NAME/g" setup_mac.sh
 fi
-
-# Make setup script executable
 chmod +x setup_mac.sh
 
-# Create README from template
-echo "Creating README..."
-if [ -f "$SCRIPT_DIR/README-template.md" ]; then
-    cp "$SCRIPT_DIR/README-template.md" README.md
-    # Replace ProjectExample with actual project names
-    sed -i '' "s/ProjectExample/$PROJECT_NAME/g" README.md
-    sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" README.md
+# ============================================================
+# Step 6: CLAUDE.md
+# ============================================================
+
+echo "Creating CLAUDE.md..."
+if [ "$MODE" = "fork" ]; then
+    CLAUDE_TEMPLATE="$SCRIPT_DIR/CLAUDE-template-fork.md"
 else
-    echo "Warning: README-template.md not found, creating basic README"
-    echo "# $PROJECT_NAME" > README.md
-    echo "" >> README.md
-    echo "Academic research project: $PROJECT_NAME" >> README.md
+    CLAUDE_TEMPLATE="$SCRIPT_DIR/CLAUDE-template.md"
 fi
 
-# Create CLAUDE.md from template
-echo "Creating CLAUDE.md..."
-if [ -f "$SCRIPT_DIR/CLAUDE-template.md" ]; then
-    cp "$SCRIPT_DIR/CLAUDE-template.md" CLAUDE.md
-    # Replace ProjectExample with actual project names
+if [ -f "$CLAUDE_TEMPLATE" ]; then
+    cp "$CLAUDE_TEMPLATE" CLAUDE.md
     sed -i '' "s/ProjectExample/$PROJECT_NAME/g" CLAUDE.md
     sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" CLAUDE.md
+    if [ "$MODE" = "fork" ]; then
+        sed -i '' "s/WORKSPACE_PLACEHOLDER/$WORKSPACE_NAME/g" CLAUDE.md
+    fi
 else
-    echo "Warning: CLAUDE-template.md not found, skipping CLAUDE.md creation"
+    echo "Warning: CLAUDE template not found, skipping CLAUDE.md creation"
 fi
 
-# Copy .claude folder from ProjectExample
-echo "Copying .claude configuration..."
-if [ -d "$SCRIPT_DIR/ProjectExample/.claude" ]; then
-    cp -r "$SCRIPT_DIR/ProjectExample/.claude" .claude
-    # Replace ProjectExample with actual project names in all .claude files
-    find .claude -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample/$PROJECT_NAME/g" {} \;
-    find .claude -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" {} \;
-    echo "Copied .claude configuration with agents and skills"
-else
-    echo "Warning: ProjectExample/.claude not found, skipping .claude configuration"
-fi
-
-# Create AGENTS.md symlink to CLAUDE.md for Codex compatibility
-echo "Creating AGENTS.md symlink..."
+# AGENTS.md symlink
 if [ -f "CLAUDE.md" ]; then
-    ln -s CLAUDE.md AGENTS.md
+    ln -sf CLAUDE.md AGENTS.md
     echo "Created AGENTS.md -> CLAUDE.md symlink"
-else
-    echo "Warning: CLAUDE.md not found, skipping AGENTS.md symlink"
 fi
 
-# Copy .mcp.json configuration
+# ============================================================
+# Step 7: .mcp.json
+# ============================================================
+
 echo "Copying .mcp.json configuration..."
 if [ -f "$SCRIPT_DIR/ProjectExample/.mcp.json" ]; then
     cp "$SCRIPT_DIR/ProjectExample/.mcp.json" .mcp.json
-    # Replace ProjectExample with actual project names
     sed -i '' "s/ProjectExample/$PROJECT_NAME/g" .mcp.json
     sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" .mcp.json
     echo "Copied .mcp.json configuration"
-else
-    echo "Warning: ProjectExample/.mcp.json not found, skipping .mcp.json configuration"
 fi
 
-# Create initial symlinks to shared folders
-echo "Creating initial symlinks..."
-SOURCE_DIR="../$PROJECT_SHARE_NAME"
-if [ -d "$SOURCE_DIR" ]; then
-    for folder in "$SOURCE_DIR"/*; do
+# ============================================================
+# Step 8: .claude/ folder (agents, skills, settings)
+# ============================================================
+
+echo "Copying .claude configuration..."
+if [ -d "$SCRIPT_DIR/ProjectExample/.claude" ]; then
+    if [ "$MODE" = "fork" ]; then
+        # Fork mode: .claude/ goes to repo root, merge with existing
+        CLAUDE_DEST="$FORK_REPO_PATH/.claude"
+        if [ -d "$CLAUDE_DEST" ]; then
+            echo "Existing .claude/ found, merging..."
+            # Copy agents and skills (don't overwrite existing)
+            mkdir -p "$CLAUDE_DEST/agents" "$CLAUDE_DEST/skills"
+            cp -rn "$SCRIPT_DIR/ProjectExample/.claude/agents/"* "$CLAUDE_DEST/agents/" 2>/dev/null || true
+            cp -rn "$SCRIPT_DIR/ProjectExample/.claude/skills/"* "$CLAUDE_DEST/skills/" 2>/dev/null || true
+            # Update settings.local.json if it only has minimal content
+            if [ -f "$CLAUDE_DEST/settings.local.json" ]; then
+                echo "Note: .claude/settings.local.json already exists. Review and merge manually if needed."
+                echo "Template version is at: $SCRIPT_DIR/ProjectExample/.claude/settings.local.json"
+            else
+                cp "$SCRIPT_DIR/ProjectExample/.claude/settings.local.json" "$CLAUDE_DEST/settings.local.json"
+            fi
+        else
+            cp -r "$SCRIPT_DIR/ProjectExample/.claude" "$CLAUDE_DEST"
+        fi
+        # Replace project names in .claude files
+        find "$CLAUDE_DEST" -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample/$PROJECT_NAME/g" {} \;
+        find "$CLAUDE_DEST" -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" {} \;
+    else
+        # Fresh mode: .claude/ in workspace root (same as project root)
+        cp -r "$SCRIPT_DIR/ProjectExample/.claude" .claude
+        find .claude -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample/$PROJECT_NAME/g" {} \;
+        find .claude -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" {} \;
+    fi
+    echo "Copied .claude configuration with agents and skills"
+fi
+
+# ============================================================
+# Step 9: README (fresh mode only)
+# ============================================================
+
+if [ "$MODE" = "fresh" ]; then
+    echo "Creating README..."
+    if [ -f "$SCRIPT_DIR/README-template.md" ]; then
+        cp "$SCRIPT_DIR/README-template.md" README.md
+        sed -i '' "s/ProjectExample/$PROJECT_NAME/g" README.md
+        sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" README.md
+    else
+        echo "# $PROJECT_NAME" > README.md
+        echo "" >> README.md
+        echo "Academic research project: $PROJECT_NAME" >> README.md
+    fi
+else
+    # Fork mode: create root-level CLAUDE.md as hierarchy guide
+    echo "Creating root CLAUDE.md hierarchy guide..."
+    ROOT_CLAUDE="$FORK_REPO_PATH/CLAUDE.md"
+    if [ ! -f "$ROOT_CLAUDE" ]; then
+        if [ -f "$SCRIPT_DIR/CLAUDE-root-fork.md" ]; then
+            cp "$SCRIPT_DIR/CLAUDE-root-fork.md" "$ROOT_CLAUDE"
+            sed -i '' "s/ProjectExample/$PROJECT_NAME/g" "$ROOT_CLAUDE"
+            sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" "$ROOT_CLAUDE"
+            sed -i '' "s/WORKSPACE_PLACEHOLDER/$WORKSPACE_NAME/g" "$ROOT_CLAUDE"
+            echo "Created root CLAUDE.md with reading order"
+        fi
+    else
+        echo "Root CLAUDE.md already exists, skipping"
+    fi
+fi
+
+# ============================================================
+# Step 10: Symlinks to shared folders
+# ============================================================
+
+echo "Creating symlinks..."
+if [ -d "$SHARE_RELATIVE" ]; then
+    for folder in "$SHARE_RELATIVE"/*; do
         if [ -d "$folder" ]; then
             folder_name=$(basename "$folder")
-            ln -s "$SOURCE_DIR/$folder_name" "./$folder_name"
-            echo "Created symlink: ./$folder_name -> $SOURCE_DIR/$folder_name"
+            if [ -L "./$folder_name" ]; then
+                echo "Symlink ./$folder_name already exists, skipping"
+            else
+                ln -s "$SHARE_RELATIVE/$folder_name" "./$folder_name"
+                echo "Created symlink: ./$folder_name -> $SHARE_RELATIVE/$folder_name"
+            fi
         fi
     done
 else
-    echo "Warning: Shared directory $SOURCE_DIR not found"
+    echo "Warning: Shared directory $SHARE_RELATIVE not found"
 fi
 
-# Initialize git repository
-echo "Initializing git repository..."
-git init
+# ============================================================
+# Step 11: .gitignore
+# ============================================================
 
-# Create .gitignore from template
-echo "Creating .gitignore..."
-if [ -f "$SCRIPT_DIR/ProjectExample/.gitignore" ]; then
-    cp "$SCRIPT_DIR/ProjectExample/.gitignore" .gitignore
+if [ "$MODE" = "fork" ]; then
+    # Fork mode: append to existing .gitignore
+    GITIGNORE_PATH="$FORK_REPO_PATH/.gitignore"
+    MARKER="# ===== Research template additions ====="
+
+    if ! grep -q "$MARKER" "$GITIGNORE_PATH" 2>/dev/null; then
+        echo "Appending research template rules to .gitignore..."
+        cat >> "$GITIGNORE_PATH" << GITIGNORE_EOF
+
+$MARKER
+
+# Symlinked folders (point to ${PROJECT_SHARE_NAME}/)
+${WORKSPACE_NAME}/Notes
+${WORKSPACE_NAME}/Data
+${WORKSPACE_NAME}/Output
+
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
+*-blx.bib
+*.dvi
+*.ps
+*.out
+*.toc
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# uv / project
+uv.lock
+*.tmp
+*.bak
+.python-version
+sync/
+GITIGNORE_EOF
+        echo "Appended template rules to .gitignore"
+    else
+        echo ".gitignore already has template rules, skipping"
+    fi
 else
-    echo "Warning: ProjectExample/.gitignore not found, creating basic .gitignore"
-    cat > .gitignore << EOF
+    # Fresh mode: copy or create .gitignore
+    echo "Creating .gitignore..."
+    if [ -f "$SCRIPT_DIR/ProjectExample/.gitignore" ]; then
+        cp "$SCRIPT_DIR/ProjectExample/.gitignore" .gitignore
+    else
+        echo "Warning: ProjectExample/.gitignore not found, creating basic .gitignore"
+        cat > .gitignore << EOF
 # Python
 __pycache__/
 *.py[cod]
@@ -362,38 +526,87 @@ uv.lock
 *.tmp
 *.bak
 EOF
+    fi
 fi
 
-# Automatically run setup
-echo ""
-echo "🔧 Running automatic setup..."
-./setup_mac.sh
+# ============================================================
+# Step 12: Git init (fresh mode only)
+# ============================================================
+
+if [ "$MODE" = "fresh" ]; then
+    echo "Initializing git repository..."
+    git init
+fi
+
+# ============================================================
+# Step 13: Run setup
+# ============================================================
 
 echo ""
-echo "✅ Project template created and set up successfully!"
+echo "Running automatic setup..."
+./setup_mac.sh
+
+# ============================================================
+# Summary
+# ============================================================
+
 echo ""
-echo "📁 Project structure:"
-echo "📁 $PROJECT_SHARE_NAME/       - Shared folders (for cloud storage)"
-echo "   ├── Notes/                 - Research notes"
-echo "   ├── Data/                  - Datasets"
-echo "   └── Output/                - Analysis results"
-echo ""
-echo "📁 $PROJECT_NAME/             - Code repository (for Git)"
-echo "   ├── Code/                  - Source code"
-echo "   ├── Figures/               - Final figures for papers"
-echo "   ├── Tables/                - Final tables for papers"
-echo "   ├── Paper/                 - Paper materials"
-echo "   ├── Slides/                - Presentation materials"
-echo "   ├── Notes/                 - (symlink to $PROJECT_SHARE_NAME/Notes)"
-echo "   ├── Data/                  - (symlink to $PROJECT_SHARE_NAME/Data)"
-echo "   ├── Output/                - (symlink to $PROJECT_SHARE_NAME/Output)"
-echo "   ├── pyproject.toml         - Python environment"
-echo "   ├── setup_mac.sh           - Setup script"
-echo "   └── README.md              - Setup instructions"
-echo ""
-echo "🎉 Next steps for collaboration:"
-echo "1. Share $PROJECT_SHARE_NAME/ folder with coauthors via Dropbox"
-echo "2. Push $PROJECT_NAME/ repository to GitHub and share with coauthors"
-echo "3. Coauthors should clone the repository and run ./setup_mac.sh to set up their environment"
-echo ""
-echo "Ready to start coding in $PROJECT_NAME/Code/ directory!"
+if [ "$MODE" = "fork" ]; then
+    echo "Fork overlay created successfully!"
+    echo ""
+    echo "Project structure:"
+    echo "  $PROJECT_SHARE_NAME/              - Shared folders (for cloud storage)"
+    echo "    ├── Notes/                      - Research notes"
+    echo "    ├── Data/                       - Datasets"
+    echo "    └── Output/                     - Analysis results"
+    echo ""
+    echo "  $PROJECT_NAME/                    - Forked repository"
+    echo "    ├── (original repo files)       - Untouched"
+    echo "    ├── .claude/                    - Claude agents & skills"
+    echo "    ├── .gitignore                  - Updated with template rules"
+    echo "    └── $WORKSPACE_NAME/"
+    echo "        ├── Code/                   - Your analysis scripts"
+    echo "        ├── Figures/, Tables/        - Final outputs"
+    echo "        ├── Paper/, Slides/          - LaTeX documents"
+    echo "        ├── Plans/                   - Plan logs"
+    echo "        ├── PROGRESS.md              - Progress tracker"
+    echo "        ├── CLAUDE.md                - AI instructions"
+    echo "        ├── Notes/ -> -Share         - Symlink"
+    echo "        ├── Data/ -> -Share          - Symlink"
+    echo "        └── Output/ -> -Share        - Symlink"
+    echo ""
+    echo "Next steps:"
+    echo "1. Review and commit: cd $PROJECT_NAME && git add . && git commit -m 'Add research workspace'"
+    echo "2. Fill in API keys: edit $PROJECT_SHARE_NAME/Notes/.env"
+    echo "3. Share $PROJECT_SHARE_NAME/ via Dropbox"
+else
+    echo "Project template created and set up successfully!"
+    echo ""
+    echo "Project structure:"
+    echo "  $PROJECT_SHARE_NAME/       - Shared folders (for cloud storage)"
+    echo "    ├── Notes/                 - Research notes"
+    echo "    ├── Data/                  - Datasets"
+    echo "    └── Output/                - Analysis results"
+    echo ""
+    echo "  $PROJECT_NAME/             - Code repository (for Git)"
+    echo "    ├── Code/                  - Source code"
+    echo "    ├── Figures/               - Final figures for papers"
+    echo "    ├── Tables/                - Final tables for papers"
+    echo "    ├── Paper/                 - Paper materials"
+    echo "    ├── Slides/                - Presentation materials"
+    echo "    ├── Plans/                 - Plan logs"
+    echo "    ├── PROGRESS.md            - Progress tracker"
+    echo "    ├── Notes/                 - (symlink to $PROJECT_SHARE_NAME/Notes)"
+    echo "    ├── Data/                  - (symlink to $PROJECT_SHARE_NAME/Data)"
+    echo "    ├── Output/                - (symlink to $PROJECT_SHARE_NAME/Output)"
+    echo "    ├── pyproject.toml         - Python environment"
+    echo "    ├── setup_mac.sh           - Setup script"
+    echo "    └── README.md              - Setup instructions"
+    echo ""
+    echo "Next steps for collaboration:"
+    echo "1. Share $PROJECT_SHARE_NAME/ folder with coauthors via Dropbox"
+    echo "2. Push $PROJECT_NAME/ repository to GitHub and share with coauthors"
+    echo "3. Coauthors should clone the repository and run ./setup_mac.sh to set up their environment"
+    echo ""
+    echo "Ready to start coding in $PROJECT_NAME/Code/ directory!"
+fi
