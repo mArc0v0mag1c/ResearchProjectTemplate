@@ -105,8 +105,24 @@ Each section follows this framework:
 ```
 1. User specifies section/topic
 2. User provides: structure + raw content + annotations
-3. Claude drafts LaTeX following the content structure:
-   → Where we at → Why motivated → What we do → Results/next steps
-4. User reviews → requests revisions
-5. User says "move on" → next section
+3. Claude replies with a PLAIN TEXT DRAFT (not LaTeX) — outlining the content,
+   flow, and key equations in readable form
+4. User reviews the draft → requests revisions
+5. User approves: "yes, do latex" → Claude writes the .tex code
+6. User inspects live in VS Code (LaTeX Workshop auto-rebuilds on save)
+7. User says "move on" → next section
 ```
+
+**Important**: Claude must NOT generate LaTeX code until the user explicitly approves the draft. The draft-first step ensures content is correct before formatting.
+
+## Live Preview Setup
+
+Install the **LaTeX Workshop** extension in VS Code for auto-build and live PDF preview:
+
+```bash
+code --install-extension James-Yu.latex-workshop
+```
+
+Once installed, open any `.tex` file and press `Cmd+Shift+P` → "LaTeX Workshop: View LaTeX PDF". The PDF panel auto-refreshes on every save — no manual `latexmk` needed.
+
+This replaces the build-inspect-rebuild cycle: just edit the `.tex`, save, and the preview updates instantly.
