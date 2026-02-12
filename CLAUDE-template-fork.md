@@ -61,6 +61,11 @@ Within each Output subfolder, optionally organize by script name:
 - `Output/Analysis/heterogeneity.py/` - Outputs from heterogeneity.py
 
 
+## Reports
+
+- Reports live in `Reports/<name>/main.tex` using `\usepackage{marcoreport}`
+- **Read `Reports/STYLE-GUIDE.md` before writing any report** — it defines the exact structure, workflow, and content principles
+
 ## Coding Style
 
 - Code is for academic research and **NOT** meant for production-ready. Therefore, write **concise** and efficient code without safety check (`try...catch...`, `if...else`) unless it's necessary or specifically requested

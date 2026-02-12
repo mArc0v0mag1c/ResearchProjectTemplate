@@ -195,6 +195,14 @@ fi
 
 mkdir -p Code Figures Tables Paper Slides Reports Plans
 
+# Copy Reports style guide
+if [ -f "$SCRIPT_DIR/ProjectExample/Reports/STYLE-GUIDE.md" ]; then
+    if [ ! -f Reports/STYLE-GUIDE.md ]; then
+        cp "$SCRIPT_DIR/ProjectExample/Reports/STYLE-GUIDE.md" Reports/STYLE-GUIDE.md
+        echo "Copied Reports/STYLE-GUIDE.md"
+    fi
+fi
+
 # ============================================================
 # Step 3: Progress tracking scaffold
 # ============================================================
