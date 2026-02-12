@@ -6,6 +6,55 @@
 - Use `\usepackage{marcoreport}` (shared style at `~/Library/TinyTeX/texmf-local/tex/latex/marco/`)
 - Build: `latexmk -pdf main.tex` from within the report subfolder
 
+### TinyTeX Package Installation
+
+TinyTeX ships with a minimal set of packages. `marcoreport.sty` requires these additional packages:
+
+```bash
+# If TinyTeX is outdated vs the remote repo, point to the matching historic archive:
+# tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2024/tlnet-final
+# tlmgr update --self
+
+# Core packages for marcoreport.sty
+tlmgr install setspace titlesec fancyhdr mathtools pgf tcolorbox \
+  environ fp trimspaces tikzfill pdfcol \
+  listings listingsutf8 minted fvextra upquote lineno csquotes \
+  varwidth needspace adjustbox collectbox colortbl oberdiek
+```
+
+After installing `marcoreport.sty` to `~/Library/TinyTeX/texmf-local/tex/latex/marco/`, run:
+
+```bash
+texhash ~/Library/TinyTeX/texmf-local
+```
+
+Verify with:
+
+```bash
+kpsewhich marcoreport.sty
+# Should print: ~/Library/TinyTeX/texmf-local/tex/latex/marco/marcoreport.sty
+```
+
+### Available Commands from `marcoreport.sty`
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `\vct{x}` | Bold vector | $\boldsymbol{x}$ |
+| `\mat{A}` | Bold matrix | $\mathbf{A}$ |
+| `\RR` | Real numbers | $\mathbb{R}$ |
+| `\EE` | Expectation | $\mathbb{E}$ |
+| `\var` | Variance | $\text{Var}$ |
+| `\argmin` | Argmin operator | $\mathrm{argmin}$ |
+| `\argmax` | Argmax operator | $\mathrm{argmax}$ |
+
+| Environment | Purpose |
+|-------------|---------|
+| `theorem`, `lemma` | Numbered theorems (plain style) |
+| `definition` | Numbered definitions |
+| `remark` | Unnumbered remarks |
+| `remarkbox[Title]` | Blue highlighted box for key insights |
+| `mynote` (tcolorbox) | Gray note box via `\begin{tcolorbox}[mynote, title=...]` |
+
 ## Structure & Workflow
 
 1. **You provide the structure**: The exact outline, section headings, and content flow. Claude follows it precisely.
