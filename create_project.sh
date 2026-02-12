@@ -193,7 +193,7 @@ else
     fi
 fi
 
-mkdir -p Code Figures Tables Paper Slides Plans
+mkdir -p Code Figures Tables Paper Slides Reports Plans
 
 # ============================================================
 # Step 3: Progress tracking scaffold
@@ -658,6 +658,7 @@ if [ "$MODE" = "fork" ]; then
     echo "        ├── Code/                   - Your analysis scripts"
     echo "        ├── Figures/, Tables/        - Final outputs"
     echo "        ├── Paper/, Slides/          - LaTeX documents"
+    echo "        ├── Reports/                 - LaTeX reports"
     echo "        ├── Plans/                   - Plan logs"
     echo "        ├── PROGRESS.md              - Progress tracker"
     echo "        ├── CLAUDE.md                - AI instructions"
@@ -690,6 +691,7 @@ else
     echo "    ├── Tables/                - Final tables for papers"
     echo "    ├── Paper/                 - Paper materials"
     echo "    ├── Slides/                - Presentation materials"
+    echo "    ├── Reports/               - LaTeX reports"
     echo "    ├── Plans/                 - Plan logs"
     echo "    ├── PROGRESS.md            - Progress tracker"
     echo "    ├── Notes/                 - (symlink to $PROJECT_SHARE_NAME/Notes)"

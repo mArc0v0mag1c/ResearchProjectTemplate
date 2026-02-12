@@ -12,7 +12,7 @@
 ## Working Directory Context
 
 You are working in the `ProjectExample/WORKSPACE_PLACEHOLDER/` folder, which is a research workspace inside a forked Git repository. This folder contains:
-- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`, `Plans/`
+- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`, `Reports/`, `Plans/`
 - Symlinked folders: `Data`, `Notes`, `Output` (these link to `../../ProjectExample-Share/` which is outside the Git repo)
 
 The parent folder `ProjectExample/` contains the original forked repository codebase. Your research workspace is separate from the original code.
@@ -30,6 +30,7 @@ This project follows a two-folder structure designed for academic research on to
 - `WORKSPACE_PLACEHOLDER/Tables/` - Final presentable results and summary statistics (version-tracked)
 - `WORKSPACE_PLACEHOLDER/Paper/` - LaTeX documents for academic papers
 - `WORKSPACE_PLACEHOLDER/Slides/` - LaTeX presentations
+- `WORKSPACE_PLACEHOLDER/Reports/` - LaTeX reports (one subfolder per report, uses `\usepackage{marcoreport}`)
 - `WORKSPACE_PLACEHOLDER/Data`, `WORKSPACE_PLACEHOLDER/Notes`, `WORKSPACE_PLACEHOLDER/Output` - Symlinks to ProjectExample-Share/
 
 ### Cloud Storage Folder (ProjectExample-Share/)

@@ -24,6 +24,7 @@ Folders from `ProjectExample-Share/` are symlinked into `ProjectExample/`, so yo
 - `Tables/` - Final presentable result tables and summary statistics that we want to track with git
 - `Paper/` - The LaTeX folder containing the draft
 - `Slides/` - The LaTeX folder containing slides
+- `Reports/` - LaTeX reports (one subfolder per report)
 
 #### In the Cloud Storage (`ProjectExample-Share`)
 - `Notes/` - Research notes and documentation
@@ -94,4 +95,4 @@ done
 After setup, you should have:
 - Python environment ready with `uv sync`
 - Symbolic links to shared `Notes`, `Data`, and `Output` folders
-- Local `Code`, `Figures`, `Tables`, `Paper`, and `Slides` folders in the repository
+- Local `Code`, `Figures`, `Tables`, `Paper`, `Slides`, and `Reports` folders in the repository

@@ -12,7 +12,7 @@
 ## Working Directory Context
 
 You are working in the `ProjectExample/` folder, which is a Git repository. This folder contains:
-- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`
+- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`, `Reports/`
 - Symlinked folders: `Data`, `Notes`, `Output` (these link to `../ProjectExample-Share/` which is outside the Git repo)
 
 You can access all folders normally - the symlinks are transparent. Files in symlinked folders are NOT tracked by Git but are synced via cloud storage (e.g., Dropbox, Google Drive).
@@ -27,6 +27,7 @@ This project follows a two-folder structure designed for academic research colla
 - `Tables/` - Final presentable results and summary statistics (version-tracked)
 - `Paper/` - LaTeX documents for academic papers
 - `Slides/` - LaTeX presentations
+- `Reports/` - LaTeX reports (one subfolder per report, uses `\usepackage{marcoreport}`)
 - `Data`, `Notes`, `Output` - Symlinks to corresponding folders in ProjectExample-Share/
 
 ### Cloud Storage Folder (ProjectExample-Share/)

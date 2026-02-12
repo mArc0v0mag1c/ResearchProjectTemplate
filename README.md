@@ -58,6 +58,7 @@ Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in 
 - `Tables/` - Final presentable result tables and summary statistics that we want to track with git
 - `Paper/` - The LaTeX folder containing the draft
 - `Slides/` - The LaTeX folder containing slides
+- `Reports/` - LaTeX reports (one subfolder per report)
 
 #### In the Cloud Storage (`MyProject-Share`)
 - `Notes/` - Research notes and documentation
