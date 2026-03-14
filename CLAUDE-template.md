@@ -4,10 +4,11 @@
 ## Reading Order (Priority)
 
 1. **`PROGRESS.md`** — Read FIRST. Current project status, active plan, history.
-2. **This file (`CLAUDE.md`)** — Project structure, coding style, conventions.
-3. **`Plans/`** — If PROGRESS.md shows an active plan, read the corresponding plan log.
-4. **`.claude/skills/`** — Available skills (pdf, progress-tracker, work-summary, zotero-paper-reader).
-5. **`.claude/agents/`** — Specialized agents (code-reviewer, report-checker, results-summarizer).
+2. **`.claude/instructions/lessons.md`** — Project-specific lessons learned. Review for patterns to follow.
+3. **This file (`CLAUDE.md`)** — Project structure, coding style, conventions.
+4. **`Plans/`** — If PROGRESS.md shows an active plan, read the corresponding plan log.
+5. **`.claude/skills/`** — Available skills (pdf, progress-tracker, work-summary, zotero-paper-reader).
+6. **`.claude/agents/`** — Specialized agents (code-reviewer, report-checker, results-summarizer, unit-tester).
 
 ## Working Directory Context
 
@@ -57,20 +58,49 @@ Within each Output subfolder, optionally organize by script name:
 - `Output/Analysis/main_regression.py/` - Outputs from main_regression.py
 - `Output/Analysis/heterogeneity.py/` - Outputs from heterogeneity.py
 
-
 ## Reports
 
 - Reports live in `Reports/<name>/main.tex` using `\usepackage{marcoreport}`
-- **Read `Reports/STYLE-GUIDE.md` before writing any report** — it defines the exact structure, workflow, and content principles
+- **You MUST read `Reports/STYLE-GUIDE.md` before writing any report** — do not proceed without reading it first
 
 ## Coding Style
 
 - Code is for academic research and **NOT** meant for production-ready. Therefore, write **concise** and efficient code without safety check (`try...catch...`, `if...else`) unless it's necessary or specifically requested
 - Due to the exploratory nature, **DO** write interactive code that can be evaluated line-by-line
 - Document only when necessary, but be concise
-- When producing outputs, save in `Output/` following the subfolder convention. Do **NOT** save outputs in `Figures/` or `Tables/` unless explicitly requested
 - The project is version controlled with Git. Hence, when adding new analysis, Do **NOT** create a new script per task, but **DO** edit the existing files directly
-- Always execute at the project root rather than `cd` into subfolders
+
+### Coding Checklist (enforce every time)
+- [ ] **Project root**: Always execute from the project root. Never `cd` into subfolders.
+- [ ] **Output location**: Save outputs in `Output/` following the subfolder convention. Do **NOT** save in `Figures/` or `Tables/` unless explicitly requested by the user.
+- [ ] **Relative paths**: Use `Data/`, `Output/`, `Code/` — never absolute paths like `/Users/.../`.
+- [ ] **Interactive cells**: Use `# %%` cell separators for interactive evaluation.
+
+## Writing Standards
+
+All written outputs (working journal entries, reports, summaries) must follow these rules. Agents and skills reference this section as the single source of truth.
+
+### Be Factual and Objective
+- State what was done and what was found
+- Report numerical results precisely
+- Describe methods used
+- Link every claim to source (code, output, documentation)
+
+### Prohibited Language
+Do not use unless the user explicitly requests interpretation:
+
+- **Speculation**: "suggests", "indicates", "likely", "probably", "appears to", "this means", "implies", "shows that"
+- **Causal claims**: "because", "caused by", "due to" (unless describing code logic)
+- **Subjective assessments**: "excellent", "poor", "good", "bad", "successful", "failed", "strong", "weak" (without statistical definition)
+- **Vague quantifiers**: "significant" (without p-value), "accurate" (without metric)
+
+**Acceptable alternatives**: "difference of X%", "within Y% of benchmark", "classified Z% of cases", "error rate of W%"
+
+### Prohibited Sections
+Do not include unless user explicitly requests: Recommendations, Conclusions with interpretation, Strategic Decisions, Implications, Future Work.
+
+### Cite Everything
+Every factual claim must link to supporting evidence: `[descriptive text](../../path/to/file)` — code files for methodology, output files for results, documentation for data sources.
 
 ## Python Environment
 
@@ -81,36 +111,54 @@ Within each Output subfolder, optionally organize by script name:
 
 Whenever calling Python-related programs, use `uv` unless it is infeasible.
 
-## Git Branching
+## Git Rules
 
-- A `test` branch is **auto-created** during project setup. All work happens on `test` (or other feature branches).
+### Branching
+- A `test` branch is **auto-created** during project setup. Quick or unlinked work happens on `test`.
+- For issue-linked work, create feature branches: `issue_NNN_description` (e.g., `issue_012_clean_returns`).
 - **Never commit directly to `main`**. `main` stays clean — it represents the last stable/accepted state (and tracks upstream for forked repos).
 - When changes are ready to be permanent, create a **pull request** from the working branch to `main`.
 - Before committing, check you're on the right branch (`git branch`). If on `main`, switch to `test` first.
 
+### Commit Messages
+- **All commit messages must include an issue number** (`#NNN`) — enforced by git hook.
+- Keep the summary line under 80 characters (excluding the issue number).
+- For plan completions, use the detailed format from the progress-tracker skill.
+
+### Git Hooks (auto-configured)
+- `commit-msg`: Blocks commits without an issue number (`#NNN`) or "Merg" keyword. If blocked, add the relevant issue number to your message.
+- `pre-commit`: Runs `ruff check` on staged `.py` files. Fix lint errors before committing.
+- Hooks location: `.githooks/`. Configured via `git config core.hooksPath .githooks`.
+
 ## Progress Tracking
 
-This project tracks progress across sessions using two files:
+This project tracks progress via `PROGRESS.md` and `Plans/`. Use the **progress-tracker skill** (`.claude/skills/progress-tracker/SKILL.md`) for all progress operations — it is the authoritative reference for the workflow.
 
-### Files
-- `PROGRESS.md` — Compact status tracker. **Read this first** when starting a new session or when asked for status.
-- `Plans/` — Detailed plan logs, one file per plan.
+Quick reference:
+- **Session start**: Read `PROGRESS.md`, then check for active plan in `Plans/`.
+- **"Where are we?"**: Read and report from `PROGRESS.md`.
+- **New plan / plan completion**: Follow the progress-tracker skill instructions.
 
-### Workflow
-1. **Session start**: Read `PROGRESS.md` for context on current phase and recent work.
-2. **New plan**: Create `Plans/YYYY-MM-DD-description.md`, update `PROGRESS.md` (set Active Plan).
-3. **During work**: Update plan log steps as completed.
-4. **Plan done** (user says "wrap up" / "commit"):
-   - Update plan log Outcome section
-   - Update `PROGRESS.md` (status → Completed, clear Active Plan)
-   - Commit with detailed message:
-     ```
-     [Title]: one-line summary
+## Workflow Orchestration
 
-     Prior state: ...
-     Motivation: ...
-     Steps: 1. ... 2. ...
-     Key files: ...
-     See Plans/YYYY-MM-DD-desc.md for details.
-     ```
-5. **"Where are we?"**: Read and report from `PROGRESS.md`.
+### Plan First
+- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
+- If something goes sideways, STOP and re-plan immediately — don't keep pushing
+- Use plan mode for verification steps, not just building
+- Write detailed specs upfront to reduce ambiguity
+
+### Subagent Strategy
+- Use subagents liberally to keep main context window clean
+- Offload research, exploration, and parallel analysis to subagents
+- One task per subagent for focused execution
+
+### Self-Improvement Loop
+- When the user corrects your approach, ask: **"Should I add this to lessons.md?"**
+- Don't silently update — confirm with the user first
+- Save confirmed lessons to `.claude/instructions/lessons.md`
+- Review lessons at every session start (it's in the Reading Order)
+
+### Verification Before Done
+- Never mark a task complete without proving it works
+- Run the code, check outputs, diff behavior when relevant
+- Ask yourself: "Would a senior researcher approve this?"

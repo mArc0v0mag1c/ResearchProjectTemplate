@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# commit-msg hook: require issue number (#NNN) or merge commit
+#
+# Allows:
+#   "Add return analysis #12"
+#   "Merge branch 'test' into main"
+#
+# Blocks:
+#   "fix stuff"
+#   "update analysis"
+
+MSG=$(cat "$1")
+
+if ! echo "$MSG" | grep -qE "(#[0-9]+|Merg)"; then
+    echo ""
+    echo "ERROR: Commit message must include an issue number (#NNN)."
+    echo ""
+    echo "  Your message: $MSG"
+    echo ""
+    echo "  Example: git commit -m \"Add return analysis #12\""
+    echo ""
+    echo "  If no issue exists yet, create one on GitHub first."
+    echo "  Merge commits are exempt from this rule."
+    echo ""
+    exit 1
+fi

@@ -138,6 +138,15 @@ fi
 
 SHARE_ABS_PATH="$(cd "$SHARE_PARENT_DIR" && pwd)/$PROJECT_SHARE_NAME"
 
+# Detect cloud storage type from --drive path
+CLOUD_TYPE="cloud storage"
+if [ -n "$DRIVE_PATH" ]; then
+    case "$DRIVE_PATH" in
+        *Dropbox*|*dropbox*)                       CLOUD_TYPE="Dropbox" ;;
+        *GoogleDrive*|*"Google Drive"*|*gdrive*)   CLOUD_TYPE="Google Drive" ;;
+    esac
+fi
+
 # ============================================================
 # Step 1: Create shared folders (-Share/)
 # ============================================================
@@ -316,10 +325,10 @@ if [ -f "$CLAUDE_TEMPLATE" ]; then
     if [ "$MODE" = "fork" ]; then
         sed -i '' "s/WORKSPACE_PLACEHOLDER/$WORKSPACE_NAME/g" CLAUDE.md
     fi
-    # Replace Dropbox references with cloud storage when --drive is used
+    # Customize cloud storage references when --drive is used
     if [ -n "$DRIVE_PATH" ]; then
-        sed -i '' 's/synced via cloud storage (e.g., Dropbox, Google Drive)/synced via cloud storage (Google Drive)/g' CLAUDE.md
-        sed -i '' 's/Cloud Storage Folder/Google Drive Folder/g' CLAUDE.md
+        sed -i '' "s/synced via cloud storage (e.g., Dropbox, Google Drive)/synced via $CLOUD_TYPE/g" CLAUDE.md
+        sed -i '' "s/Cloud Storage Folder/$CLOUD_TYPE Folder/g" CLAUDE.md
     fi
 else
     echo "Warning: CLAUDE template not found, skipping CLAUDE.md creation"
@@ -344,7 +353,7 @@ if [ -f "$SCRIPT_DIR/ProjectExample/.mcp.json" ]; then
 fi
 
 # ============================================================
-# Step 8: .claude/ folder (agents, skills, settings)
+# Step 8: .claude/ folder (agents, skills, instructions, settings)
 # ============================================================
 
 echo "Copying .claude configuration..."
@@ -354,10 +363,11 @@ if [ -d "$SCRIPT_DIR/ProjectExample/.claude" ]; then
         CLAUDE_DEST="$FORK_REPO_PATH/.claude"
         if [ -d "$CLAUDE_DEST" ]; then
             echo "Existing .claude/ found, merging..."
-            # Copy agents and skills (don't overwrite existing)
-            mkdir -p "$CLAUDE_DEST/agents" "$CLAUDE_DEST/skills"
+            # Copy agents, skills, and instructions (don't overwrite existing)
+            mkdir -p "$CLAUDE_DEST/agents" "$CLAUDE_DEST/skills" "$CLAUDE_DEST/instructions"
             cp -rn "$SCRIPT_DIR/ProjectExample/.claude/agents/"* "$CLAUDE_DEST/agents/" 2>/dev/null || true
             cp -rn "$SCRIPT_DIR/ProjectExample/.claude/skills/"* "$CLAUDE_DEST/skills/" 2>/dev/null || true
+            cp -rn "$SCRIPT_DIR/ProjectExample/.claude/instructions/"* "$CLAUDE_DEST/instructions/" 2>/dev/null || true
             # Update settings.local.json if it only has minimal content
             if [ -f "$CLAUDE_DEST/settings.local.json" ]; then
                 echo "Note: .claude/settings.local.json already exists. Review and merge manually if needed."
@@ -377,7 +387,46 @@ if [ -d "$SCRIPT_DIR/ProjectExample/.claude" ]; then
         find .claude -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample/$PROJECT_NAME/g" {} \;
         find .claude -type f \( -name "*.md" -o -name "*.json" \) -exec sed -i '' "s/ProjectExample-Share/$PROJECT_SHARE_NAME/g" {} \;
     fi
-    echo "Copied .claude configuration with agents and skills"
+    echo "Copied .claude configuration with agents, skills, and instructions"
+fi
+
+# ============================================================
+# Step 8b: .githooks/ (commit-msg, pre-commit)
+# ============================================================
+
+echo "Copying git hooks..."
+if [ -d "$SCRIPT_DIR/ProjectExample/.githooks" ]; then
+    if [ "$MODE" = "fork" ]; then
+        HOOKS_DEST="$FORK_REPO_PATH/.githooks"
+    else
+        HOOKS_DEST=".githooks"
+    fi
+    if [ ! -d "$HOOKS_DEST" ]; then
+        cp -r "$SCRIPT_DIR/ProjectExample/.githooks" "$HOOKS_DEST"
+        chmod +x "$HOOKS_DEST"/*
+        echo "Copied .githooks/ (commit-msg, pre-commit)"
+    else
+        echo ".githooks/ already exists, skipping"
+    fi
+fi
+
+# ============================================================
+# Step 8c: .gitattributes (LFS patterns)
+# ============================================================
+
+echo "Copying .gitattributes..."
+if [ -f "$SCRIPT_DIR/ProjectExample/.gitattributes" ]; then
+    if [ "$MODE" = "fork" ]; then
+        GITATTR_DEST="$FORK_REPO_PATH/.gitattributes"
+    else
+        GITATTR_DEST=".gitattributes"
+    fi
+    if [ ! -f "$GITATTR_DEST" ]; then
+        cp "$SCRIPT_DIR/ProjectExample/.gitattributes" "$GITATTR_DEST"
+        echo "Copied .gitattributes with LFS patterns"
+    else
+        echo ".gitattributes already exists, skipping"
+    fi
 fi
 
 # ============================================================
@@ -637,6 +686,29 @@ fi
 # Fresh mode: test branch was already created in Step 13
 
 # ============================================================
+# Step 14b: Configure git hooks path and LFS
+# ============================================================
+
+echo "Configuring git hooks..."
+if [ "$MODE" = "fork" ]; then
+    GIT_DIR="$FORK_REPO_PATH"
+else
+    GIT_DIR="."
+fi
+
+# Point git to our hooks directory
+git -C "$GIT_DIR" config core.hooksPath .githooks
+echo "Configured git hooks path: .githooks/"
+
+# Install git LFS if available
+if command -v git-lfs >/dev/null 2>&1; then
+    git -C "$GIT_DIR" lfs install --local
+    echo "Configured git LFS"
+else
+    echo "Note: git-lfs not found. Install with 'brew install git-lfs' for large file support."
+fi
+
+# ============================================================
 # Step 15: Run setup
 # ============================================================
 
@@ -653,14 +725,20 @@ if [ "$MODE" = "fork" ]; then
     echo "Fork overlay created successfully!"
     echo ""
     echo "Project structure:"
-    echo "  $PROJECT_SHARE_NAME/              - Shared folders (for cloud storage)"
+    if [ -n "$DRIVE_PATH" ]; then
+        echo "  $PROJECT_SHARE_NAME/              - Shared folders ($CLOUD_TYPE)"
+    else
+        echo "  $PROJECT_SHARE_NAME/              - Shared folders (for cloud storage)"
+    fi
     echo "    ├── Notes/                      - Research notes"
     echo "    ├── Data/                       - Datasets"
     echo "    └── Output/                     - Analysis results"
     echo ""
     echo "  $PROJECT_NAME/                    - Forked repository"
     echo "    ├── (original repo files)       - Untouched"
-    echo "    ├── .claude/                    - Claude agents & skills"
+    echo "    ├── .claude/                    - Claude agents, skills & instructions"
+    echo "    ├── .githooks/                  - Git hooks (commit-msg, pre-commit)"
+    echo "    ├── .gitattributes              - LFS patterns for large files"
     echo "    ├── .gitignore                  - Updated with template rules"
     echo "    └── $WORKSPACE_NAME/"
     echo "        ├── Code/                   - Your analysis scripts"
@@ -680,7 +758,7 @@ if [ "$MODE" = "fork" ]; then
     echo "1. Review and commit: cd $PROJECT_NAME && git add . && git commit -m 'Add research workspace'"
     echo "2. Fill in API keys: edit $PROJECT_SHARE_NAME/Notes/.env"
     if [ -n "$DRIVE_PATH" ]; then
-        echo "3. Share folder is in cloud storage at: $SHARE_ABS_PATH"
+        echo "3. Share folder is in $CLOUD_TYPE at: $SHARE_ABS_PATH"
     else
         echo "3. Share $PROJECT_SHARE_NAME/ via cloud storage (Dropbox, Google Drive, etc.)"
     fi
@@ -688,7 +766,11 @@ else
     echo "Project template created and set up successfully!"
     echo ""
     echo "Project structure:"
-    echo "  $PROJECT_SHARE_NAME/       - Shared folders (for cloud storage)"
+    if [ -n "$DRIVE_PATH" ]; then
+        echo "  $PROJECT_SHARE_NAME/       - Shared folders ($CLOUD_TYPE)"
+    else
+        echo "  $PROJECT_SHARE_NAME/       - Shared folders (for cloud storage)"
+    fi
     echo "    ├── Notes/                 - Research notes"
     echo "    ├── Data/                  - Datasets"
     echo "    └── Output/                - Analysis results"
@@ -702,6 +784,9 @@ else
     echo "    ├── Reports/               - LaTeX reports"
     echo "    ├── Plans/                 - Plan logs"
     echo "    ├── PROGRESS.md            - Progress tracker"
+    echo "    ├── .githooks/             - Git hooks (commit-msg, pre-commit)"
+    echo "    ├── .gitattributes         - LFS patterns for large files"
+    echo "    ├── .claude/               - Agents, skills & instructions"
     echo "    ├── Notes/                 - (symlink to $PROJECT_SHARE_NAME/Notes)"
     echo "    ├── Data/                  - (symlink to $PROJECT_SHARE_NAME/Data)"
     echo "    ├── Output/                - (symlink to $PROJECT_SHARE_NAME/Output)"
@@ -713,7 +798,7 @@ else
     echo ""
     echo "Next steps for collaboration:"
     if [ -n "$DRIVE_PATH" ]; then
-        echo "1. Share folder is in cloud storage at: $SHARE_ABS_PATH"
+        echo "1. Share folder is in $CLOUD_TYPE at: $SHARE_ABS_PATH"
     else
         echo "1. Share $PROJECT_SHARE_NAME/ folder with coauthors via cloud storage (Dropbox, Google Drive, etc.)"
     fi

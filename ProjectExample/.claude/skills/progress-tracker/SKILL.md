@@ -84,12 +84,10 @@ commit:
    - Update plan history entry: status to "Completed", add one-line summary
    - Update **Last Updated** date
 
-3. **Check branch** — ensure you are NOT on `main`. A `test` branch was auto-created during setup. If on `main`, switch: `git checkout test`.
-
-4. Stage and commit with this format:
+3. **Check branch and commit** — follow **Git Rules** in CLAUDE.md (never commit to `main`, include `#NNN` in message). Use this commit format:
 
 ```
-[Plan Title]: [one-line summary]
+[Plan Title]: [one-line summary] #NNN
 
 Prior state: [where the project was before this plan]
 Motivation: [why this plan was needed]
@@ -100,11 +98,10 @@ Steps completed:
 
 Key files changed:
 - [file]: [what changed]
-- [file]: [what changed]
 
 See Plans/YYYY-MM-DD-description.md for detailed walkthrough.
 ```
 
-5. Update plan log front matter with commit hash
+4. Update plan log front matter with commit hash
 
-6. Update `PROGRESS.md` plan history entry with commit hash
+5. Update `PROGRESS.md` plan history entry with commit hash

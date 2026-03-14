@@ -52,23 +52,7 @@ For each factual claim in the report:
 
 ### Step 4: Check for Speculation and Interpretation
 
-Look for prohibited language patterns:
-
-**Speculation indicators:**
-- "suggests", "indicates", "likely", "probably", "appears to"
-- "this means", "implies", "shows that"
-- Causal claims: "because", "caused by", "due to"
-- Predictions or recommendations
-
-**Subjective assessments:**
-- "excellent", "poor", "good", "bad", "successful", "failed"
-- "significant", "strong", "weak" (without statistical definition)
-- "accurate", "inaccurate" (without quantification)
-
-**✓ Acceptable alternatives:**
-- "difference of X%", "within Y% of benchmark"
-- "classified Z% of cases"
-- "error rate of W%"
+Enforce the **Writing Standards** from CLAUDE.md — specifically the **Prohibited Language** and **Prohibited Sections** lists. That section is the single source of truth for what's allowed.
 
 **Exception:** If user explicitly requested interpretation, note it and allow it.
 

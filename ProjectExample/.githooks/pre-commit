@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# pre-commit hook: lint staged Python files with ruff
+#
+# Checks only the staged versions of .py files.
+# If ruff is not installed, the hook passes with a warning.
+
+# Find staged .py files
+STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$')
+
+if [ -z "$STAGED_PY" ]; then
+    exit 0
+fi
+
+# Check if ruff is available
+if command -v ruff >/dev/null 2>&1; then
+    RUFF_CMD="ruff"
+elif command -v uv >/dev/null 2>&1; then
+    RUFF_CMD="uv run ruff"
+else
+    echo "Warning: ruff not found. Skipping Python lint check."
+    echo "Install with: uv add --dev ruff"
+    exit 0
+fi
+
+echo "Running ruff on staged .py files..."
+
+# Lint staged files
+FAILED=0
+for FILE in $STAGED_PY; do
+    # Check the staged version, not the working copy
+    git show ":$FILE" | $RUFF_CMD check --stdin-filename "$FILE" -
+    if [ $? -ne 0 ]; then
+        FAILED=1
+    fi
+done
+
+if [ $FAILED -ne 0 ]; then
+    echo ""
+    echo "Commit blocked: fix ruff errors above, then re-stage and commit."
+    echo "To auto-fix: ruff check --fix <file>"
+    exit 1
+fi

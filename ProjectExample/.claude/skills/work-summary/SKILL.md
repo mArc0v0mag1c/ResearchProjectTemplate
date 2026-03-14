@@ -91,48 +91,13 @@ permalink: working-journal/YYYY-MM-DD-author-description
 - Output: `../../Output/`
 - Data: `../../Data/`
 
-## Critical Rules - MUST FOLLOW
+## Critical Rules
 
-### 1. Be Factual and Objective
+Follow **Writing Standards** in CLAUDE.md — that section is the single source of truth for factuality, prohibited language, prohibited sections, and citation requirements.
 
-**✓ DO:**
-- State what was done and what was found
-- Report numerical results precisely
-- Describe methods used
-- Link every claim to source (code, output, documentation)
-
-**✗ DO NOT:**
-- Interpret economic meaning without user request
-- Speculate on causes or implications
-- Make recommendations or suggest next steps
-- Use subjective assessments ("excellent", "poor", "successful")
-
-### 2. Examples
-
-**Good (Factual):**
-- "Processed 4.7M holdings from 11,857 submissions"
-- "Difference of -30% (-$243B)"
-- "Front-end tenors within 7% of benchmark"
-- "Classification success rate: 70% (3,988 of 5,699)"
-
-**Bad (Speculative/Interpretive):**
-- "This suggests the classification is insufficient"
-- "The results indicate strong performance"
-- "This likely means we should use BKMS data"
-- "The excellent match validates our approach"
-
-### 3. Cite Everything
-
-Every claim must link to supporting evidence:
-- `[descriptive text](../../path/to/file)`
-- Code files for methodology
-- Output files for results
-- Documentation for data sources
-
-### 4. Figures
-
-- Copy to attachments/ with descriptive filename
-- Cite original source location
+Additionally for working journal entries:
+- Copy figures to `attachments/` with descriptive filenames
+- Cite original source location for each figure
 - Use descriptive captions
 
 ### Step 6: Verify Report Quality

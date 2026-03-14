@@ -31,11 +31,7 @@ Read the code to understand:
 
 ### Step 2: Check CLAUDE.md Compliance
 
-Review against project conventions:
-- Uses relative paths (not absolute)
-- Interactive code with `# %%` cells
-- Minimal functions/compartmentalization
-- Outputs saved in `Output/[subfolder]/`
+Review against the **Coding Checklist** in CLAUDE.md (project root, output location, relative paths, interactive cells).
 
 ### Step 3: Data Integrity Review
 
@@ -226,31 +222,6 @@ Then provide summary:
 4. **Distinguish severity**: Critical = wrong results, Major = likely problem, Minor = suggestion
 5. **Research code**: Interactive and exploratory, not production
 
-## Common Pitfalls
-
-1. **Many-to-many merges** creating duplicates
-2. **Inner joins** silently dropping non-matches
-3. **Wrong aggregation function** (sum vs mean)
-4. **Absolute paths** breaking reproducibility
-5. **Unintended filter combinations** from boolean logic
-6. **Not checking uniqueness** before operations assuming it
-7. **Processing at wrong level** (e.g., share-class vs fund)
-8. **Missing data treated as zero** when shouldn't be (or vice versa)
-
-## Missing Data Context Examples
-
-**Appropriate implicit handling:**
-```python
-# Missing holdings reasonably mean no position
-# .sum() ignoring NaN is correct here
-total_holdings = df.groupby('asset_class')['value'].sum()
-```
-
-**Problematic implicit handling:**
-```python
-# Missing returns should not be treated as zero
-# Should explicitly filter or investigate
-avg_return = df.groupby('fund')['return'].mean()  # NaN=0 WRONG
-```
-
 Present findings with specific line numbers and actionable suggestions. Focus on whether data handling aligns with analytical objectives.
+
+Follow **Coding Checklist** and **Writing Standards** from CLAUDE.md when evaluating code and writing review output.
