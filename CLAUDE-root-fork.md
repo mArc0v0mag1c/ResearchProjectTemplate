@@ -14,7 +14,7 @@
 
 This is a **forked repository** with a research workspace overlay:
 - **Repo root** — Original codebase (do not modify unless explicitly asked)
-- **`WORKSPACE_PLACEHOLDER/`** — Your research workspace (Code, Figures, Tables, Paper, Slides)
+- **`WORKSPACE_PLACEHOLDER/`** — Your research workspace (Code, Figures, Tables, WorkingPaper, Literature, Slides)
 - **`ProjectExample-Share/`** — Shared data folder (symlinked into workspace as Data/, Notes/, Output/)
 
 ## Key Rules

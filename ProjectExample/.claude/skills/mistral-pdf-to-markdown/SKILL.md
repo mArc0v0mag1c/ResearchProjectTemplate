@@ -20,11 +20,11 @@ Use the conversion script from this skill's directory:
 
 ```bash
 # Convert entire PDF
-python scripts/convert_pdf_to_markdown.py input.pdf output.md
+uv run ${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py input.pdf output.md
 
 # Convert specific pages
-python scripts/convert_pdf_to_markdown.py input.pdf output.md --pages "1-5"
-python scripts/convert_pdf_to_markdown.py input.pdf output.md --pages "1,3,5"
+uv run ${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py input.pdf output.md --pages "1-5"
+uv run ${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py input.pdf output.md --pages "1,3,5"
 ```
 
 ## Output Structure
@@ -47,7 +47,7 @@ import subprocess
 # Run conversion script
 result = subprocess.run([
     "python",
-    ".claude/skills/mistral-pdf-to-markdown/scripts/convert_pdf_to_markdown.py",
+    "${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py",
     "input.pdf",
     "Output/PDFConversions/output.md",
     "--pages", "1-10"
@@ -67,14 +67,14 @@ print(result.stdout)
 ## Requirements
 
 The script requires:
-- Mistral API key in `Notes/.env` (line 2: `mistral_api_key=...`)
-- Python packages: `mistralai`, `python-dotenv`, `pypdf`
+- Mistral API key in `.env` at project root (`mistral_api_key=...`)
+- Python packages: auto-installed via PEP 723 inline metadata (`mistralai`, `python-dotenv`, `pypdf`)
 
 ## Common Use Cases
 
 ### Convert Research Paper
 ```bash
-python scripts/convert_pdf_to_markdown.py \
+uv run ${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py \
   "Data/papers/research.pdf" \
   "Notes/Paper Markdown/research.md"
 ```
@@ -82,7 +82,7 @@ python scripts/convert_pdf_to_markdown.py \
 ### Extract Specific Sections
 ```bash
 # Extract pages 10-20 (introduction and methods)
-python scripts/convert_pdf_to_markdown.py \
+uv run ${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py \
   "paper.pdf" \
   "Notes/Paper Markdown/intro_methods.md" \
   --pages "10-20"
@@ -91,7 +91,7 @@ python scripts/convert_pdf_to_markdown.py \
 ### Extract Figures Only
 ```bash
 # Extract pages with figures
-python scripts/convert_pdf_to_markdown.py \
+uv run ${CLAUDE_SKILL_DIR}/scripts/convert_pdf_to_markdown.py \
   "paper.pdf" \
   "Notes/Paper Markdown/figures.md" \
   --pages "25,27,30,35"
@@ -101,9 +101,9 @@ python scripts/convert_pdf_to_markdown.py \
 
 **API Key Not Found:**
 ```
-Error: Mistral API key not found in Notes/.env
+Error: Mistral API key not found in .env
 ```
-→ Add `mistral_api_key=YOUR_KEY` to line 2 of `Notes/.env`
+→ Add `mistral_api_key=YOUR_KEY` to `.env` at the project root
 
 **Page Out of Range:**
 ```

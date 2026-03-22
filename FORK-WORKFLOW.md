@@ -14,7 +14,7 @@ git clone https://github.com/YOUR_USERNAME/repo-name.git
 /path/to/ResearchProjectTemplate/create_project.sh --fork ./repo-name
 
 # 4. Fill in API keys
-nano repo-name-Share/Notes/.env
+nano repo-name/_myworkspace/.env
 
 # 5. Commit the overlay (already on test branch)
 cd repo-name && git add . && git commit -m "Add research workspace"
@@ -24,7 +24,6 @@ cd repo-name && git add . && git commit -m "Add research workspace"
 
 ```
 repo-name-Share/                     (new, for cloud storage)
-├── Notes/.env                       API keys template
 ├── Data/                            Raw datasets
 └── Output/                          Intermediate results
 
@@ -43,7 +42,8 @@ repo-name/                           (your forked repo, original files untouched
     ├── Code/                        Your analysis scripts
     ├── Figures/                     Final figures (git-tracked)
     ├── Tables/                      Final tables (git-tracked)
-    ├── Paper/                       LaTeX papers
+    ├── WorkingPaper/                LaTeX working papers
+    ├── Literature/                  Bibliography & literature review
     ├── Slides/                      LaTeX presentations
     ├── pyproject.toml               Python dependencies
     ├── setup_mac.sh                 Environment setup

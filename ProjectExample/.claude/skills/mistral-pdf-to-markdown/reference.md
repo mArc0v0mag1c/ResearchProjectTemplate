@@ -175,7 +175,7 @@ markdown_content = markdown_content.replace('](img-', '](images/img-')
 **Solutions:**
 ```bash
 # Verify API key exists
-cat Notes/.env | grep mistral_api_key
+cat .env | grep mistral_api_key
 
 # Test API key manually
 export MISTRAL_API_KEY="your-key-here"

@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["python-dotenv"]
+# ///
 """
 Get PDF file from Zotero library - tries local first, then downloads from web if needed.
 
@@ -45,7 +49,7 @@ def get_api_key():
     Returns:
         API key string, or None if not found
     """
-    env_file = Path("Notes/.env")
+    env_file = Path(".env")
 
     if not env_file.exists():
         print(f"Error: .env file not found at {env_file}", file=sys.stderr)
@@ -67,7 +71,7 @@ def get_library_config():
     Returns:
         Tuple of (library_type, library_id) or (None, None) if not found
     """
-    env_file = Path("Notes/.env")
+    env_file = Path(".env")
 
     if not env_file.exists():
         print(f"Error: .env file not found at {env_file}", file=sys.stderr)

@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["mistralai", "python-dotenv", "pypdf"]
+# ///
 """
 Convert PDF to Markdown using Mistral OCR API.
 
@@ -18,13 +22,13 @@ import io
 
 
 def load_api_key():
-    """Load Mistral API key from Notes/.env"""
-    env_path = Path("Notes/.env")
+    """Load Mistral API key from .env"""
+    env_path = Path(".env")
     load_dotenv(env_path)
     api_key = os.getenv("mistral_api_key")
 
     if not api_key:
-        raise ValueError("Mistral API key not found in Notes/.env")
+        raise ValueError("Mistral API key not found in .env")
 
     return api_key
 

@@ -22,7 +22,8 @@ Folders from `ProjectExample-Share/` are symlinked into `ProjectExample/`, so yo
    - The subfolders are organized around different tasks, e.g., `DataCleaning`.
 - `Figures/` - Final presentable charts, plots, and visualizations that we want to track the version with git
 - `Tables/` - Final presentable result tables and summary statistics that we want to track with git
-- `Paper/` - The LaTeX folder containing the draft
+- `WorkingPaper/` - LaTeX documents for academic working papers
+- `Literature/` - Bibliography files (.bib) and literature review materials
 - `Slides/` - The LaTeX folder containing slides
 - `Reports/` - LaTeX reports (one subfolder per report)
 
@@ -95,4 +96,4 @@ done
 After setup, you should have:
 - Python environment ready with `uv sync`
 - Symbolic links to shared `Notes`, `Data`, and `Output` folders
-- Local `Code`, `Figures`, `Tables`, `Paper`, `Slides`, and `Reports` folders in the repository
+- Local `Code`, `Figures`, `Tables`, `WorkingPaper`, `Literature`, `Slides`, and `Reports` folders in the repository

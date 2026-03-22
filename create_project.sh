@@ -159,18 +159,7 @@ cd "$PROJECT_SHARE_NAME"
 echo "Creating shared directories..."
 mkdir -p Notes Data Output
 
-# Copy .env to Notes/
-if [ -f "$SCRIPT_DIR/ProjectExample/Notes/.env" ]; then
-    if [ ! -f Notes/.env ]; then
-        cp "$SCRIPT_DIR/ProjectExample/Notes/.env" Notes/.env
-        sed -i '' "s/ProjectExample/$PROJECT_NAME/g" Notes/.env
-        echo "Copied .env template to Notes/"
-    else
-        echo ".env already exists in Notes/, skipping"
-    fi
-else
-    echo "Warning: ProjectExample/Notes/.env not found"
-fi
+# .env template is copied to workspace root in Step 2
 
 echo "Created shared folder structure in $PROJECT_SHARE_NAME"
 
@@ -202,7 +191,18 @@ else
     fi
 fi
 
-mkdir -p Code Figures Tables Paper Slides Reports Plans
+mkdir -p Code Figures Tables WorkingPaper Literature/Extracted Slides Reports Plans
+
+# Copy .env template to project root
+if [ -f "$SCRIPT_DIR/ProjectExample/.env" ]; then
+    if [ ! -f .env ]; then
+        cp "$SCRIPT_DIR/ProjectExample/.env" .env
+        sed -i '' "s/ProjectExample/$PROJECT_NAME/g" .env
+        echo "Copied .env template to project root"
+    else
+        echo ".env already exists, skipping"
+    fi
+fi
 
 # Copy Reports style guide
 if [ -f "$SCRIPT_DIR/ProjectExample/Reports/STYLE-GUIDE.md" ]; then
@@ -364,10 +364,11 @@ if [ -d "$SCRIPT_DIR/ProjectExample/.claude" ]; then
         if [ -d "$CLAUDE_DEST" ]; then
             echo "Existing .claude/ found, merging..."
             # Copy agents, skills, and instructions (don't overwrite existing)
-            mkdir -p "$CLAUDE_DEST/agents" "$CLAUDE_DEST/skills" "$CLAUDE_DEST/instructions"
+            mkdir -p "$CLAUDE_DEST/agents" "$CLAUDE_DEST/skills" "$CLAUDE_DEST/instructions" "$CLAUDE_DEST/draft-reviewer/reviewers"
             cp -rn "$SCRIPT_DIR/ProjectExample/.claude/agents/"* "$CLAUDE_DEST/agents/" 2>/dev/null || true
             cp -rn "$SCRIPT_DIR/ProjectExample/.claude/skills/"* "$CLAUDE_DEST/skills/" 2>/dev/null || true
             cp -rn "$SCRIPT_DIR/ProjectExample/.claude/instructions/"* "$CLAUDE_DEST/instructions/" 2>/dev/null || true
+            cp -rn "$SCRIPT_DIR/ProjectExample/.claude/draft-reviewer/"* "$CLAUDE_DEST/draft-reviewer/" 2>/dev/null || true
             # Update settings.local.json if it only has minimal content
             if [ -f "$CLAUDE_DEST/settings.local.json" ]; then
                 echo "Note: .claude/settings.local.json already exists. Review and merge manually if needed."
@@ -743,7 +744,8 @@ if [ "$MODE" = "fork" ]; then
     echo "    └── $WORKSPACE_NAME/"
     echo "        ├── Code/                   - Your analysis scripts"
     echo "        ├── Figures/, Tables/        - Final outputs"
-    echo "        ├── Paper/, Slides/          - LaTeX documents"
+    echo "        ├── WorkingPaper/, Literature/ - Papers & bibliography"
+    echo "        ├── Slides/                  - LaTeX presentations"
     echo "        ├── Reports/                 - LaTeX reports"
     echo "        ├── Plans/                   - Plan logs"
     echo "        ├── PROGRESS.md              - Progress tracker"
@@ -756,7 +758,7 @@ if [ "$MODE" = "fork" ]; then
     echo ""
     echo "Next steps:"
     echo "1. Review and commit: cd $PROJECT_NAME && git add . && git commit -m 'Add research workspace'"
-    echo "2. Fill in API keys: edit $PROJECT_SHARE_NAME/Notes/.env"
+    echo "2. Fill in API keys: edit $PROJECT_NAME/.env"
     if [ -n "$DRIVE_PATH" ]; then
         echo "3. Share folder is in $CLOUD_TYPE at: $SHARE_ABS_PATH"
     else
@@ -779,7 +781,8 @@ else
     echo "    ├── Code/                  - Source code"
     echo "    ├── Figures/               - Final figures for papers"
     echo "    ├── Tables/                - Final tables for papers"
-    echo "    ├── Paper/                 - Paper materials"
+    echo "    ├── WorkingPaper/          - Working paper drafts"
+    echo "    ├── Literature/            - Bibliography & literature review"
     echo "    ├── Slides/                - Presentation materials"
     echo "    ├── Reports/               - LaTeX reports"
     echo "    ├── Plans/                 - Plan logs"

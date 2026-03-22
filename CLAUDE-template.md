@@ -13,7 +13,7 @@
 ## Working Directory Context
 
 You are working in the `ProjectExample/` folder, which is a Git repository. This folder contains:
-- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `Paper/`, `Slides/`, `Reports/`
+- Git-tracked folders: `Code/`, `Figures/`, `Tables/`, `WorkingPaper/`, `Literature/`, `Slides/`, `Reports/`
 - Symlinked folders: `Data`, `Notes`, `Output` (these link to `../ProjectExample-Share/` which is outside the Git repo)
 
 You can access all folders normally - the symlinks are transparent. Files in symlinked folders are NOT tracked by Git but are synced via cloud storage (e.g., Dropbox, Google Drive).
@@ -26,7 +26,8 @@ This project follows a two-folder structure designed for academic research colla
 - `Code/` - All analysis scripts organized by task (e.g., DataCleaning/)
 - `Figures/` - Final presentable charts and visualizations (version-tracked)
 - `Tables/` - Final presentable results and summary statistics (version-tracked)
-- `Paper/` - LaTeX documents for academic papers
+- `WorkingPaper/` - LaTeX documents for academic working papers
+- `Literature/` - Bibliography files (.bib) and literature review materials (version-tracked)
 - `Slides/` - LaTeX presentations
 - `Reports/` - LaTeX reports (one subfolder per report, uses `\usepackage{marcoreport}`)
 - `Data`, `Notes`, `Output` - Symlinks to corresponding folders in ProjectExample-Share/
@@ -58,10 +59,34 @@ Within each Output subfolder, optionally organize by script name:
 - `Output/Analysis/main_regression.py/` - Outputs from main_regression.py
 - `Output/Analysis/heterogeneity.py/` - Outputs from heterogeneity.py
 
+## Working Papers
+
+- Working papers live in `WorkingPaper/` as LaTeX documents
+- When iterating on a working paper draft, use the **draft-reviewer** (`.claude/draft-reviewer/REVIEWER.md`) to get multi-agent review feedback
+- Follow **Writing Standards** (below) for all paper content
+
+## Literature
+
+- `Literature/` is the central location for all literature-related files
+  - `Literature/*.pdf` — raw paper PDFs (gitignored via `*.pdf` rule)
+  - `Literature/references.bib` — shared BibTeX bibliography (git-tracked)
+  - `Literature/Extracted/` — PDF-to-markdown conversions with extracted images (git-tracked)
+- **Zotero workflow**: Use the **zotero-paper-reader** skill to fetch papers → download to `Literature/` → convert to `Literature/Extracted/`
+- **Manual PDFs**: When the user places PDFs in `Literature/`, use the **mistral-pdf-to-markdown** skill to OCR-convert them to `Literature/Extracted/`
+- API keys (`mistral_api_key`, Zotero keys) are in `.env` at the project root (gitignored)
+- Filename convention: `Author_Year.md` (e.g., `Du_et_al_2023.md`)
+
 ## Reports
 
 - Reports live in `Reports/<name>/main.tex` using `\usepackage{marcoreport}`
 - **You MUST read `Reports/STYLE-GUIDE.md` before writing any report** — do not proceed without reading it first
+- **Draft-first workflow** — do NOT generate LaTeX until the user explicitly approves the draft:
+  1. Write overview first (structure, key findings, section outline)
+  2. User reviews → revisions
+  3. Write full content to `Reports/<name>/draft.md` (plain text + markdown)
+  4. Iterate on draft until user says "proceed to tex"
+  5. Convert `draft.md` → `main.tex`
+- Follow **Writing Standards** (below) for all report content
 
 ## Coding Style
 
@@ -157,6 +182,10 @@ Quick reference:
 - Don't silently update — confirm with the user first
 - Save confirmed lessons to `.claude/instructions/lessons.md`
 - Review lessons at every session start (it's in the Reading Order)
+
+### Proactive Saving
+- When generating long-form output (analysis summaries, literature reviews, detailed explanations), save to a markdown file rather than only printing to chat
+- Save location: `Notes/` for research notes, `Output/` for analysis results
 
 ### Verification Before Done
 - Never mark a task complete without proving it works

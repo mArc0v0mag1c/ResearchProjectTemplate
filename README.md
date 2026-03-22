@@ -56,7 +56,8 @@ Folders from `MyProject-Share/` are symlinked into `MyProject/`, so you work in 
    - The subfolders are organized around different tasks, e.g., `DataCleaning`.
 - `Figures/` - Final presentable charts, plots, and visualizations that we want to track the version with git
 - `Tables/` - Final presentable result tables and summary statistics that we want to track with git
-- `Paper/` - The LaTeX folder containing the draft
+- `WorkingPaper/` - LaTeX documents for academic working papers
+- `Literature/` - Bibliography files (.bib) and literature review materials
 - `Slides/` - The LaTeX folder containing slides
 - `Reports/` - LaTeX reports (one subfolder per report)
 
@@ -249,6 +250,9 @@ The template includes specialized Claude agents in `.claude/agents/`:
 - **`code-reviewer`** - Reviews code changes for academic research quality, style consistency, and potential issues
 - **`report-checker`** - Validates research reports and documentation for completeness and accuracy
 - **`results-summarizer`** - Creates comprehensive summaries of analysis results after outputs have been generated
+- **`unit-tester`** - Generates data validation checks (merge integrity, deduplication, type/format) for research code
+- **`review-doc-commit`** - 4-phase gated commit workflow: scope → document → review → topical commits
+- **`draft-reviewer`** (`.claude/draft-reviewer/`) - Multi-agent paper review with 7 specialized reviewers (mathematical, writing-clarity, proofreader, consistency-checker, citation-checker, argument-logic, code-paper-consistency)
 
 **Usage**: Agents are invoked automatically by Claude Code when appropriate, or can be requested explicitly.
 
@@ -271,15 +275,15 @@ The template configures Model Context Protocol (MCP) servers in `.mcp.json`:
 - **[Zotero MCP](https://github.com/54yyyu/zotero-mcp)** - Direct integration with your Zotero library for searching papers, retrieving metadata, and downloading PDFs
 
 **Configuration**:
-1. Edit `Notes/.env` and fill in your API keys:
+1. Edit `.env` at the project root and fill in your API keys:
    - `mistral_api_key` - Mistral API key for PDF OCR ([get key](https://console.mistral.ai/api-keys/))
    - `ZOTERO_API_KEY` - Zotero API key ([get key](https://www.zotero.org/settings/keys/new))
    - `ZOTERO_LIBRARY_TYPE` - "user" or "group"
    - `ZOTERO_LIBRARY_ID` - Your library ID (leave empty for user library)
    - `ZOTERO_LOCAL` - "false" for web API (default), "true" for local Zotero installation
-2. Customize `.mcp.json` if needed (all env vars are read from `Notes/.env`)
+2. Customize `.mcp.json` if needed (all env vars are read from `.env`)
 
-**Note**: `Notes/.env` is in the shared folder (not tracked by Git), so your API keys are never committed to version control
+**Note**: `.env` is gitignored, so your API keys are never committed to version control
 
 ## Python Environment Management
 

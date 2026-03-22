@@ -102,6 +102,22 @@ Each section follows this framework:
 
 ## Workflow
 
+### Report-level workflow
+
+```
+1. Write a short OVERVIEW first (structure, key findings, section outline)
+2. User reviews overview → requests revisions
+3. Write full content to Reports/<name>/draft.md (plain text + markdown tables)
+4. Iterate on draft.md until user says "all good" / "proceed to tex"
+5. Convert draft.md → main.tex (single pass, full report)
+6. User reviews PDF → iterative fixes directly on main.tex
+7. Compile, commit when done
+```
+
+**Important**: Claude must NOT generate LaTeX code until the user explicitly approves the draft. The draft-first step ensures content is correct before formatting.
+
+### Section-level workflow (within a draft)
+
 ```
 1. User specifies section/topic
 2. User provides: structure + raw content + annotations
