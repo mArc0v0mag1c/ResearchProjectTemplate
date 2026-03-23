@@ -7,7 +7,7 @@
 2. **`.claude/instructions/lessons.md`** — Project-specific lessons learned. Review for patterns to follow.
 3. **This file (`CLAUDE.md`)** — Project structure, coding style, conventions.
 4. **`Plans/`** — If PROGRESS.md shows an active plan, read the corresponding plan log.
-5. **`.claude/skills/`** — Available skills (pdf, progress-tracker, work-summary, zotero-paper-reader).
+5. **`.claude/skills/`** — Available skills (method-tracker, pdf, progress-tracker, research-junshi, work-summary, zotero-paper-reader).
 6. **`.claude/agents/`** — Specialized agents (code-reviewer, report-checker, results-summarizer, unit-tester).
 
 ## Working Directory Context
@@ -35,6 +35,7 @@ This project follows a two-folder structure designed for academic research colla
 ### Cloud Storage Folder (ProjectExample-Share/)
 - `Data/` - Raw and processed datasets (read-only, not version-tracked)
 - `Notes/` - Research notes and documentation
+  - `Notes/Brainstorm/` - Research-junshi digests and brainstorm captures (auto-generated)
 - `Output/` - Intermediate results organized by task matching Code/ structure
 
 ## Subfolder Organization
@@ -63,7 +64,7 @@ Within each Output subfolder, optionally organize by script name:
 
 - Working papers live in `WorkingPaper/` as LaTeX documents
 - When iterating on a working paper draft, use the **draft-reviewer** (`.claude/draft-reviewer/REVIEWER.md`) to get multi-agent review feedback
-- Follow **Writing Standards** (below) for all paper content
+- Follow **Writing Standards** (see `~/.claude/CLAUDE.md`) for all paper content
 
 ## Literature
 
@@ -76,6 +77,10 @@ Within each Output subfolder, optionally organize by script name:
 - API keys (`mistral_api_key`, Zotero keys) are in `.env` at the project root (gitignored)
 - Filename convention: `Author_Year.md` (e.g., `Du_et_al_2023.md`)
 
+### Running Mistral PDF-to-Markdown
+
+See `~/.claude/CLAUDE.md` for Mistral conventions. Key point for fork projects: always run from **repo root** (not from `_myworkspace/`), and prefix paths with `_myworkspace/`.
+
 ## Reports
 
 - Reports live in `Reports/<name>/main.tex` using `\usepackage{marcoreport}`
@@ -86,7 +91,7 @@ Within each Output subfolder, optionally organize by script name:
   3. Write full content to `Reports/<name>/draft.md` (plain text + markdown)
   4. Iterate on draft until user says "proceed to tex"
   5. Convert `draft.md` → `main.tex`
-- Follow **Writing Standards** (below) for all report content
+- Follow **Writing Standards** (see `~/.claude/CLAUDE.md`) for all report content
 
 ## Coding Style
 
@@ -103,38 +108,11 @@ Within each Output subfolder, optionally organize by script name:
 
 ## Writing Standards
 
-All written outputs (working journal entries, reports, summaries) must follow these rules. Agents and skills reference this section as the single source of truth.
-
-### Be Factual and Objective
-- State what was done and what was found
-- Report numerical results precisely
-- Describe methods used
-- Link every claim to source (code, output, documentation)
-
-### Prohibited Language
-Do not use unless the user explicitly requests interpretation:
-
-- **Speculation**: "suggests", "indicates", "likely", "probably", "appears to", "this means", "implies", "shows that"
-- **Causal claims**: "because", "caused by", "due to" (unless describing code logic)
-- **Subjective assessments**: "excellent", "poor", "good", "bad", "successful", "failed", "strong", "weak" (without statistical definition)
-- **Vague quantifiers**: "significant" (without p-value), "accurate" (without metric)
-
-**Acceptable alternatives**: "difference of X%", "within Y% of benchmark", "classified Z% of cases", "error rate of W%"
-
-### Prohibited Sections
-Do not include unless user explicitly requests: Recommendations, Conclusions with interpretation, Strategic Decisions, Implications, Future Work.
-
-### Cite Everything
-Every factual claim must link to supporting evidence: `[descriptive text](../../path/to/file)` — code files for methodology, output files for results, documentation for data sources.
+See `~/.claude/CLAUDE.md` for the full writing standards (factual language, prohibited language, cite everything). All agents and skills follow those rules.
 
 ## Python Environment
 
-- Uses `uv` for dependency management
-- Virtual environment located at `~/.venvs/ProjectExample`
-- Run commands with `uv run <command>` (e.g., `uv run python script.py`)
-- Add dependencies with `uv add package`
-
-Whenever calling Python-related programs, use `uv` unless it is infeasible.
+See `~/.claude/CLAUDE.md` for Python/uv conventions. Project-specific: virtual environment at `~/.venvs/ProjectExample`.
 
 ## Git Rules
 
@@ -152,7 +130,7 @@ Whenever calling Python-related programs, use `uv` unless it is infeasible.
 
 ### Git Hooks (auto-configured)
 - `commit-msg`: Blocks commits without an issue number (`#NNN`) or "Merg" keyword. If blocked, add the relevant issue number to your message.
-- `pre-commit`: Runs `ruff check` on staged `.py` files. Fix lint errors before committing.
+- `pre-commit`: (1) Scans staged files for leaked secrets (API keys, passwords, private keys) — blocks commit if found. (2) Runs `ruff check` on staged `.py` files. Fix lint errors before committing.
 - Hooks location: `.githooks/`. Configured via `git config core.hooksPath .githooks`.
 
 ## Progress Tracking
@@ -166,39 +144,19 @@ Quick reference:
 
 ## Workflow Orchestration
 
-### Plan First
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately — don't keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
+See `~/.claude/CLAUDE.md` for workflow orchestration (plan first, subagent strategy, self-improvement loop, proactive saving, verification).
 
-### Subagent Strategy
-- Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- One task per subagent for focused execution
-
-### Self-Improvement Loop
-- When the user corrects your approach, ask: **"Should I add this to lessons.md?"**
-- Don't silently update — confirm with the user first
-- Save confirmed lessons to `.claude/instructions/lessons.md`
-- Review lessons at every session start (it's in the Reading Order)
-
-### Proactive Saving
-- When generating long-form output (analysis summaries, literature reviews, detailed explanations), save to a markdown file rather than only printing to chat
-- Save location: `Notes/` for research notes, `Output/` for analysis results
-
-### Verification Before Done
-- Never mark a task complete without proving it works
-- Run the code, check outputs, diff behavior when relevant
-- Ask yourself: "Would a senior researcher approve this?"
+Project-specific save locations: `Notes/` for research notes, `Output/` for analysis results.
 
 ## For Codex Only
 
 ### Skills available
 
+- `method-tracker`: Track methods and techniques learned from projects and readings; maintains inventory in ResearchHub (`.claude/skills/method-tracker`).
 - `mistral-pdf-to-markdown`: Convert PDFs to Markdown with Mistral OCR, including image extraction (`.claude/skills/mistral-pdf-to-markdown`).
 - `pdf`: Comprehensive toolkit for programmatic PDF extraction, creation, merging, and form handling (`.claude/skills/pdf`).
 - `progress-tracker`: Track project progress across sessions via `PROGRESS.md` and `Plans/` (`.claude/skills/progress-tracker`).
+- `research-junshi`: Research advisor (军师) — scans arXiv/venues, reads brainstorm notes, generates idea digests in `Notes/Brainstorm/` (`.claude/skills/research-junshi`).
 - `work-summary`: Generate factual working journal entries in `Notes/WorkingJournal/` once analysis is done (`.claude/skills/work-summary`).
 
 Use these skills whenever the user requests the corresponding workflow; refer to each `SKILL.md` for command details.

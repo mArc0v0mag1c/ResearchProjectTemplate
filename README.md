@@ -265,6 +265,8 @@ The template includes specialized Claude skills in `.claude/skills/`:
 - **`zotero-paper-reader`** - Read and analyze academic papers directly from your Zotero library, with automatic PDF-to-Markdown conversion
 - **`progress-tracker`** - Track project progress across sessions via `PROGRESS.md` and plan logs in `Plans/`
 - **`work-summary`** - Create factual working journal entries in `Notes/WorkingJournal/` after completing analysis work
+- **`research-junshi`** - Research advisor that scans arXiv/venues, reads brainstorm notes, and generates idea digests in `Notes/Brainstorm/`
+- **`method-tracker`** - Tracks methods and techniques learned from projects and readings; maintains inventory in ResearchHub
 
 **Usage**: Skills are automatically available in Claude Code. Example: "Use the zotero-paper-reader skill to read the paper about liquidity from my library"
 
@@ -284,6 +286,12 @@ The template configures Model Context Protocol (MCP) servers in `.mcp.json`:
 2. Customize `.mcp.json` if needed (all env vars are read from `.env`)
 
 **Note**: `.env` is gitignored, so your API keys are never committed to version control
+
+### Global Claude Code Setup
+
+The first time you run `create_project.sh`, it installs `~/.claude/CLAUDE.md` — a user-level config file loaded automatically in every Claude Code session. This contains shared writing standards, workflow orchestration, and cross-project conventions. Edit the "Who I Am" section to personalize it.
+
+For full cross-project features (research-junshi digests, method tracking), set up [ResearchHub](https://github.com/mArc0v0mag1c/ResearchHub) — a companion repo for researcher identity and skill state.
 
 ## Python Environment Management
 

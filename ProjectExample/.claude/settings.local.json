@@ -12,6 +12,8 @@
       "Skill(example-skills:skill-creator)",
       "mcp__zotero__zotero_get_recent",
       "Skill(zotero-paper-reader)",
+      "Skill(research-junshi)",
+      "Skill(method-tracker)",
       "mcp__zotero__zotero_semantic_search"
     ],
     "deny": []
