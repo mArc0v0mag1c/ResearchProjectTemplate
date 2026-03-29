@@ -217,7 +217,7 @@ else
     fi
 fi
 
-mkdir -p Code Figures Tables WorkingPaper Literature/Extracted Slides Reports Plans
+mkdir -p Code/{Utils,DataPrep,Analysis,Robustness,Visualization} Figures Tables WorkingPaper Literature/Extracted Slides Reports Plans
 
 # Copy .env template to project root
 if [ -f "$SCRIPT_DIR/ProjectExample/.env" ]; then

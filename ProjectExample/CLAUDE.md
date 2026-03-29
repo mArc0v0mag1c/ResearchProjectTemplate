@@ -41,17 +41,19 @@ This project follows a two-folder structure designed for academic research colla
 ## Subfolder Organization
 
 ### Code/ Directory
-Organize scripts by research tasks, not by individual runs. Examples:
-- `Code/DataCleaning/` - Scripts for data preparation and cleaning
-- `Code/Analysis/` - Main analysis scripts
+Organize scripts by function. Standard subfolders:
+- `Code/Utils/` - Shared configuration, helpers, constants
+- `Code/DataPrep/` - Data ingestion, cleaning, transformation
+- `Code/Analysis/` - Main analysis scripts (estimation, testing)
 - `Code/Robustness/` - Robustness checks and sensitivity analyses
 - `Code/Visualization/` - Scripts generating figures and tables
+- `Code/_archive/` - Deprecated scripts kept for reference (optional)
 
 **Important**: Edit existing scripts rather than creating new ones for variations of the same task.
 
 ### Output/ Directory
 Mirror the Code/ structure with corresponding output folders:
-- `Output/DataCleaning/` - Cleaned datasets, processing logs
+- `Output/DataPrep/` - Cleaned datasets, processing logs
 - `Output/Analysis/` - Regression results, statistical outputs
 - `Output/Robustness/` - Alternative specification results
 - `Output/Visualization/` - Draft figures and tables (not final versions)

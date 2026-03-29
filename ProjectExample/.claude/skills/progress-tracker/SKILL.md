@@ -32,7 +32,13 @@ Activate when:
 ### Starting a New Plan
 
 1. Read `PROGRESS.md` for context
-2. Create `Plans/YYYY-MM-DD-description.md` with this template:
+2. Create two files:
+   - `Plans/YYYY-MM-DD-description.md` — **plan log** (clean, scannable: steps, status, files, one-line summaries)
+   - `Plans/YYYY-MM-DD-description-ref.md` — **reference log** (raw verification commands, test outputs, design decisions, debug traces)
+
+   The plan log links to the ref log for evidence. This keeps the plan readable while preserving full audit trail.
+
+3. Plan log template:
 
 ```markdown
 ---
@@ -60,6 +66,9 @@ commit:
 
 ## Outcome
 [Fill when complete]
+
+## Reference
+[Ref log](YYYY-MM-DD-description-ref.md)
 ```
 
 3. Update `PROGRESS.md`:
