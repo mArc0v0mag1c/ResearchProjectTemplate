@@ -2,9 +2,32 @@
 
 ## LaTeX Setup
 
-- Each report lives in `Reports/<report-name>/main.tex`
+- Each report lives in `Reports/YYYY-MM-DD-<report-name>/main.tex` (date-prefixed folder name)
 - Use `\usepackage{marcoreport}` (shared style at `~/Library/TinyTeX/texmf-local/tex/latex/marco/`)
 - Build: `latexmk -pdf main.tex` from within the report subfolder
+
+### Title Page
+
+Every report must include author and date:
+```latex
+\title{Report Title}
+\author{Marco Zhang}
+\date{Month DD, YYYY}
+```
+
+### References
+
+Use `biblatex` with numeric citation style and `biber` backend:
+```latex
+\usepackage[backend=biber,style=numeric,sorting=nyt]{biblatex}
+\addbibresource{references.bib}
+```
+
+- Citations render as numbered brackets: `[1]`, `[2,3]`
+- Use `\autocite{key}` for parenthetical `[1]` and `\textcite{key}` for narrative "Author [1]"
+- Place `\printbibliography` before `\end{document}`
+- Each report has its own `references.bib` in the report folder
+- Biber binary is at `~/Library/TinyTeX/bin/universal-darwin/biber` — ensure it's on PATH when compiling
 
 ### TinyTeX Package Installation
 
@@ -91,6 +114,7 @@ Each section follows this framework:
 - **`enumerate`** for sequential steps / numbered conditions
 - **Nested lists** to consolidate related points
 - **Boxes**: Only use `remarkbox` for now (key insights, intuition, connections). Other box types (warningbox, definitionbox, examplebox) are available in `marcoreport.sty` but should not be used unless explicitly requested.
+- **Inside remarkbox**: Add `\setlength{\parindent}{1.5em}` after `\begin{remarkbox}[...]`. Use `\medskip` between paragraphs and `\indent` at the start of each paragraph after the first.
 
 ## What NOT to Do
 
