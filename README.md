@@ -127,6 +127,27 @@ gh auth setup-git        # Configure git to use gh credentials
 
 One-time setup per machine. After this, `git push` works with HTTPS remotes.
 
+### Platform Support
+
+The template is developed on macOS. `create_project.sh` and `setup_mac.sh` assume a POSIX shell. Notes for other platforms:
+
+**Windows (native, no WSL)**:
+- **Symlinks**: `ln -s` requires admin rights or Developer Mode. Use **directory junctions** instead — no privileges needed:
+  ```cmd
+  mklink /J Data E:\path\to\Project-Share\Data
+  mklink /J Output E:\path\to\Project-Share\Output
+  mklink /J Notes E:\path\to\Project-Share\Notes
+  ```
+- **uv install**: `irm https://astral.sh/uv/install.ps1 | iex` (PowerShell). After install, `source $HOME/.local/bin/env` in Git Bash, or restart the shell.
+- **GPU / CUDA torch**: `uv sync` installs CPU-only torch by default. For NVIDIA GPUs, uncomment the `torch` index block in `pyproject.toml` (see comments there), then `uv sync --reinstall-package torch`.
+- **`caffeinate` equivalents** (for long-running pipelines):
+  - Windows: configure power plan, or use the [Don't Sleep](https://www.softwareok.com/?Download=DontSleep) utility, or `powercfg /requestsoverride` for fine-grained control.
+  - Linux: `systemd-inhibit --what=sleep:idle bash your_script.sh`.
+
+**Linux**: most of the macOS workflow works as-is. Replace `brew install uv` with the install script `curl -LsSf https://astral.sh/uv/install.sh | sh`. `ln -s` works without elevation.
+
+**WSL** is supported transparently — treat it as Linux.
+
 ## Git
 
 We use Git for version control and GitHub for collaboration. Git helps us track changes, work simultaneously without conflicts, and maintain a complete history of our research progress. Tons of tutorials on Git can be easily found online, so here we briefly explain two key concepts, commit and pull request, and focus more on best practices in academic research. 
@@ -292,6 +313,17 @@ The template configures Model Context Protocol (MCP) servers in `.mcp.json`:
 The first time you run `create_project.sh`, it installs `~/.claude/CLAUDE.md` — a user-level config file loaded automatically in every Claude Code session. This contains shared writing standards, workflow orchestration, and cross-project conventions.
 
 For full cross-project features (research-junshi digests, method tracking) and the canonical version of the global CLAUDE.md, set up [ResearchHub](https://github.com/mArc0v0mag1c/ResearchHub) — a companion repo for researcher identity and skill state. Personal identity (role, focus areas, interests) belongs in `ResearchHub/profile.md` and `ResearchHub/interests.md`, not in `CLAUDE.md`.
+
+### Optional: superRA Plugin
+
+[superRA](https://github.com/FuZhiyu/superRA) is a Claude Code plugin that bundles structured workflow skills (planning-workflow, implementation-workflow, integration-workflow, agent-orchestration, etc.) and the implementer/reviewer agents. It is installed once per machine and applies to every Claude Code session.
+
+```bash
+claude plugin marketplace add FuZhiyu/superRA
+claude plugin install superRA@superRA
+```
+
+**Note**: superRA lives at `~/.claude/plugins/`, which is **not** part of any project repo or ResearchHub. On a new machine, you must reinstall it manually — cloning your project repos will not bring it along. The same applies to anything else under `~/.claude/` (custom skills, `settings.json`, per-project memory). Consider tracking `~/.claude/` (or a curated subset) in a personal dotfiles repo if reproducibility matters.
 
 ## Python Environment Management
 
