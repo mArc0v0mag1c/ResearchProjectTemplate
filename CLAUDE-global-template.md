@@ -14,6 +14,19 @@ Location: `~/vscodeproject/ResearchHub/`
 - `Brainstorm/cross-project/` — cross-project connection digests
 - `lessons.md` — cross-project lessons learned (append-only)
 
+## Optional: superRA Plugin
+
+[superRA](https://github.com/FuZhiyu/superRA) is a Claude Code plugin that lives at `~/.claude/plugins/` and bundles structured workflow skills (planning-workflow, implementation-workflow, integration-workflow, agent-orchestration, ...) plus implementer/reviewer agents.
+
+Install once per machine:
+
+```bash
+claude plugin marketplace add FuZhiyu/superRA
+claude plugin install superRA@superRA
+```
+
+**Important**: superRA is independent of ResearchHub and project repos. On a fresh machine, cloning project repos does **not** bring it along — you must reinstall it manually. The same goes for anything else under `~/.claude/` (custom skills, `settings.json`, per-project memory).
+
 ## Writing Standards
 
 All written outputs (working journal entries, reports, summaries) must follow these rules.
