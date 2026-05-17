@@ -15,3 +15,13 @@ dependencies = [
 [tool.uv.sources]
 # Uncomment and configure as needed:
 # zotero-mcp = { git = "https://github.com/54yyyu/zotero-mcp.git" }
+#
+# Windows + NVIDIA GPU: force CUDA torch (default uv sync installs CPU-only build).
+# After uncommenting, run `uv sync --reinstall-package torch`. Update the cu128 tag
+# to match your CUDA driver (cu121, cu124, cu128, ...).
+# torch = { index = "pytorch-cu128" }
+#
+# [[tool.uv.index]]
+# name = "pytorch-cu128"
+# url = "https://download.pytorch.org/whl/cu128"
+# explicit = true
